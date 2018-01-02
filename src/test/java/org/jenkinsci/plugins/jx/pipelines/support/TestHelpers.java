@@ -16,7 +16,15 @@
  */
 package org.jenkinsci.plugins.jx.pipelines.support;
 
+import io.fabric8.utils.IOHelpers;
+
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  */
@@ -24,5 +32,23 @@ public class TestHelpers {
     public static File getBasedir() {
         String basedirName = System.getProperty("basedir", ".");
         return new File(basedirName);
+    }
+
+    /**
+     * Returns the test resource as a string using a folder based on the given class name
+     */
+    public static String getTestResource(Class<?> clazz, String name) {
+        URL resource = null;
+        try {
+            resource = clazz.getResource(clazz.getSimpleName() + "/" + name);
+            assertTrue("Could not find test resource for " + clazz.getName() + "/" + name, resource != null);
+            InputStream is = null;
+            is = resource.openStream();
+            assertTrue("Could not find test resource for " + resource, is != null);
+            return IOHelpers.readFully(is);
+        } catch (IOException e) {
+            fail("Failed to load " + resource);
+            return null;
+        }
     }
 }

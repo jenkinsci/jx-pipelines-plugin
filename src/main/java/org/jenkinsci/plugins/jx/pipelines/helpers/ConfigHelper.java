@@ -19,12 +19,32 @@ package org.jenkinsci.plugins.jx.pipelines.helpers;
 import org.apache.commons.beanutils.PropertyUtils;
 
 import java.beans.PropertyDescriptor;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  */
 public class ConfigHelper {
+    /**
+     * Returns all the property names
+     */
+    public static Set<String> propertyNames(Object bean) {
+        SortedSet<String> answer = new TreeSet<>();
+
+        PropertyDescriptor[] propertyDescriptors = PropertyUtils.getPropertyDescriptors(bean);
+        if (propertyDescriptors != null) {
+            for (PropertyDescriptor descriptor : propertyDescriptors) {
+                if (descriptor.getWriteMethod() != null) {
+                    answer.add(descriptor.getName());
+                }
+            }
+        }
+        return answer;
+    }
+
     /**
      * Populates any suitable properties in the given configuration on the bean
      */

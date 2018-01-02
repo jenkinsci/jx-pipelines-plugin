@@ -100,6 +100,16 @@ public class MavenFlowArguments implements Serializable {
     private StepExtension waitUntilPullRequestMergedExtension = new StepExtension();
     private StepExtension waitUntilArtifactSyncedExtension = new StepExtension();
 
+    @Override
+    public String toString() {
+        return "MavenFlowArguments{" +
+                "cdOrganisation='" + cdOrganisation + '\'' +
+                ", cdBranches=" + cdBranches +
+                ", pauseOnFailure=" + pauseOnFailure +
+                ", pauseOnSuccess=" + pauseOnSuccess +
+                ", promoteArtifactsExtension=" + promoteArtifactsExtension +
+                '}';
+    }
 
     public static MavenFlowArguments newInstance(Map map) {
         MavenFlowArguments arguments = new MavenFlowArguments();

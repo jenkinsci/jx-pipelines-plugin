@@ -47,10 +47,16 @@ def call(StageProjectArguments arguments) {
     }
 
     if (fileExists("/home/jenkins/.gnupg")) {
-      sh 'chmod 600 /home/jenkins/.gnupg/pubring.gpg'
-      sh 'chmod 600 /home/jenkins/.gnupg/secring.gpg'
-      sh 'chmod 600 /home/jenkins/.gnupg/trustdb.gpg'
       sh 'chmod 700 /home/jenkins/.gnupg'
+    }
+    if (fileExists("/home/jenkins/.gnupg/pubring.gpg")) {
+      sh 'chmod 600 /home/jenkins/.gnupg/pubring.gpg'
+    }
+    if (fileExists("/home/jenkins/.gnupg/trustdb.gpg")) {
+      sh 'chmod 600 /home/jenkins/.gnupg/trustdb.gpg'
+    }
+    if (fileExists("/home/jenkins/.gnupg/secring.gpg")) {
+      sh 'chmod 600 /home/jenkins/.gnupg/secring.gpg'
     }
   }
   // TODO
@@ -137,7 +143,9 @@ def setupStageWorkspace(CommonFunctions flow, boolean useMavenForNextVersion, St
     }
 
     sh "git tag -d \$(git tag)"
-    sh "git fetch --tags"
+    if (gitPush) {
+      sh "git fetch --tags"
+    }
 
     if (useMavenForNextVersion) {
       container(containerName) {

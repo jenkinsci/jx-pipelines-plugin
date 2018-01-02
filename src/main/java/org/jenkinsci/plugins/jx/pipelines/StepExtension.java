@@ -16,7 +16,13 @@
  */
 package org.jenkinsci.plugins.jx.pipelines;
 
+import org.jenkinsci.plugins.jx.pipelines.helpers.StringHelpers;
+
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.jenkinsci.plugins.jx.pipelines.helpers.StringHelpers.addToStringProperty;
 
 /**
  * Represents an extension point in a psuedo step so that you can override a step completely, disable it
@@ -32,12 +38,12 @@ public class StepExtension implements Serializable {
 
     @Override
     public String toString() {
-        return "StepExtension{" +
-                "stepsBlock=" + stepsBlock +
-                ", preBlock=" + preBlock +
-                ", postBlock=" + postBlock +
-                ", disabled=" + disabled +
-                '}';
+        List<String> list = new ArrayList<>();
+        addToStringProperty(list, "stepsBlock", stepsBlock);
+        addToStringProperty(list, "preBlock", preBlock);
+        addToStringProperty(list, "postBlock", postBlock);
+        addToStringProperty(list, "disabled", disabled);
+        return "StepExtension{" + String.join(", ", list) + "}";
     }
 
     public StepExtension steps(Object stepsBlock) {

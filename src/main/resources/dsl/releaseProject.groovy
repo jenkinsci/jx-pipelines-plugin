@@ -16,7 +16,10 @@ def call(ReleaseProjectArguments arguments) {
   def flow = new CommonFunctions()
 
   PromoteArtifactsArguments promoteArtifactsArguments = arguments.createPromoteArtifactsArguments()
-  String pullRequestId = promoteArtifacts(promoteArtifactsArguments)
+  String pullRequestId = null
+  flow.doStepExecution(arguments.promoteArtifactsExtension) {
+    pullRequestId = promoteArtifacts(promoteArtifactsArguments)
+  }
 
   PromoteImagesArguments promoteImagesArguments = arguments.createPromoteImagesArguments()
   def promoteDockerImages = promoteImagesArguments.images
@@ -25,7 +28,9 @@ def call(ReleaseProjectArguments arguments) {
     if (validation != null) {
       error validation
     } else {
-      promoteImages(promoteImagesArguments)
+      flow.doStepExecution(arguments.promoteImagesExtension) {
+        promoteImages(promoteImagesArguments)
+      }
     }
   }
 
@@ -33,22 +38,28 @@ def call(ReleaseProjectArguments arguments) {
   if (tagImagesArguments) {
     def tagDockerImages = tagImagesArguments.images
     if (tagDockerImages && tagDockerImages.size() > 0) {
-      tagImages(tagImagesArguments)
+      flow.doStepExecution(arguments.tagImagesExtension) {
+        tagImages(tagImagesArguments)
+      }
     }
   }
 
   if (pullRequestId != null) {
     WaitUntilPullRequestMergedArguments waitUntilPullRequestMergedArguments = arguments.createWaitUntilPullRequestMergedArguments(pullRequestId)
-    waitUntilPullRequestMerged(waitUntilPullRequestMergedArguments)
+    flow.doStepExecution(arguments.waitUntilPullRequestMergedExtension) {
+      waitUntilPullRequestMerged(waitUntilPullRequestMergedArguments)
+    }
   }
 
   WaitUntilArtifactSyncedArguments waitUntilArtifactSyncedWithCentralArguments = arguments.createWaitUntilArtifactSyncedWithCentralArguments()
   Model mavenProject = flow.loadMavenPom()
   defaultWaitInfoFromPom(waitUntilArtifactSyncedWithCentralArguments, mavenProject)
 
-  if (waitUntilArtifactSyncedWithCentralArguments.isValid()) {
-    waitUntilArtifactSyncedWithCentral(waitUntilArtifactSyncedWithCentralArguments)
-  } 
+  flow.doStepExecution(arguments.waitUntilArtifactSyncedExtension) {
+    if (waitUntilArtifactSyncedWithCentralArguments.isValid()) {
+      waitUntilArtifactSyncedWithCentral(waitUntilArtifactSyncedWithCentralArguments)
+    }
+  }
 }
 
 /**

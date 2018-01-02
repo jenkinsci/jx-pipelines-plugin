@@ -112,7 +112,7 @@ public class AbstractKubernetesPipelineTest {
         createSecretsAndPVCs(cloud.connect());
 
         cloud.getTemplates().clear();
-        cloud.addTemplate(fabric8MavenTemplate("jx-maven"));
+        cloud.addTemplate(jenkinsMavenTemplate("jenkins-maven"));
 
         // Slaves running in Kubernetes (minikube) need to connect to this server, so localhost does not work
         URL url = r.getURL();
@@ -129,7 +129,7 @@ public class AbstractKubernetesPipelineTest {
         r.jenkins.clouds.add(cloud);
     }
 
-    protected PodTemplate fabric8MavenTemplate(String label) {
+    protected PodTemplate jenkinsMavenTemplate(String label) {
         // Create a busybox template
         PodTemplate podTemplate = new PodTemplate();
         podTemplate.setLabel(label);
@@ -172,7 +172,7 @@ public class AbstractKubernetesPipelineTest {
         KubeHelpers.setEnvVar(container, "DOCKER_API_VERSION", "1.23");
     }
 
-    private void createSecretsAndPVCs(KubernetesClient client) throws IOException, InterruptedException {
+    protected void createSecretsAndPVCs(KubernetesClient client) throws IOException, InterruptedException {
         // lets delete the PVC for nexus storage and bounce the nexus pod to ensure we can re-deploy the same version of the release
         Deployment nexus = client.extensions().deployments().withName(NEXUS).get();
         if (nexus == null) {

@@ -1,6 +1,8 @@
 package dsl
 
+import com.cloudbees.groovy.cps.NonCPS
 import io.fabric8.utils.Strings
+import org.apache.commons.beanutils.PropertyUtils
 import org.jenkinsci.plugins.jx.pipelines.FailedBuildException
 import org.jenkinsci.plugins.jx.pipelines.ShellFacade
 import org.jenkinsci.plugins.jx.pipelines.StepExtension
@@ -12,19 +14,14 @@ import org.jenkinsci.plugins.jx.pipelines.helpers.GitHelper
 import org.jenkinsci.plugins.jx.pipelines.helpers.GitRepositoryInfo
 import org.jenkinsci.plugins.jx.pipelines.model.StagedProjectInfo
 
-def call(Map config = [:], body) {
+import java.beans.PropertyDescriptor
 
-  def promote = new StepExtension()
+def call(body) {
+  Map config = [:]
 
-  MavenFlowArguments arguments = MavenFlowArguments.newInstance(config);
+  MavenFlowArguments arguments = new MavenFlowArguments()
+  addPropertyFunctions(config, arguments)
 
-  config["promoteArtifacts"] = createExtensionFunction(arguments.getPromoteArtifactsExtension())
-  config["promoteImages"] = createExtensionFunction(arguments.getPromoteImagesExtension())
-  config["tagImages"] = createExtensionFunction(arguments.getTagImagesExtension())
-  config["waitUntilArtifactsSynced"] = createExtensionFunction(arguments.getWaitUntilArtifactSyncedExtension())
-  config["waitUntilPullRequestMerged"] = createExtensionFunction(arguments.getWaitUntilPullRequestMergedExtension())
-
-  //def bodyBlock = new MavenFlowBody()
   if (body) {
     def bodyBlock = config
     body.resolveStrategy = Closure.DELEGATE_FIRST
@@ -32,20 +29,7 @@ def call(Map config = [:], body) {
     body()
   }
 
-  removeClosures(config)
-
-  echo "mavenFlow ${config}"
-
-  println "has promote ${promote}"
-
-  if (promote.stepsBlock) {
-    println "START Invoking promote steps"
-    def block = promote.stepsBlock
-    block()
-    println "END Invoking promote steps"
-  }
-  def pauseOnFailure = config.get('pauseOnFailure', false)
-  def pauseOnSuccess = config.get('pauseOnSuccess', false)
+  echo "mavenFlow ${arguments}"
 
   try {
     checkout scm
@@ -69,7 +53,7 @@ def call(Map config = [:], body) {
     }
 
     println("Completed")
-    if (pauseOnSuccess) {
+    if (arguments.pauseOnSuccess) {
       input message: 'The build pod has been paused'
     }
 
@@ -77,23 +61,12 @@ def call(Map config = [:], body) {
     //hubot room: 'release', message: "${env.JOB_NAME} failed: ${err}"
     logError(err)
 
-    if (pauseOnFailure) {
+    if (arguments.pauseOnFailure) {
       input message: 'The build pod has been paused'
     }
   }
 }
 
-class MavenFlowBody {
-  def promoteExtension = new StepExtension()
-
-  def promote(body) {
-    println("Invoking promote() on PromoteBBody")
-    
-    body.resolveStrategy = Closure.DELEGATE_FIRST
-    body.delegate = promoteExtension
-    body()
-  }
-}
 
 Utils createUtils() {
   def u = new Utils()
@@ -113,7 +86,6 @@ Utils createUtils() {
 
   def path = sh(script: "pwd", returnStdout: true)
   if (path) {
-    println "Currnet path is ${pwd}"
     u.setCurrentPath(path.trim())
   }
   return u
@@ -179,7 +151,7 @@ boolean isCi(MavenFlowArguments arguments) {
 Boolean ciPipeline(MavenFlowArguments arguments) {
   println("Performing CI pipeline");
   //sh("mvn clean install");
-  sh("mvn -version");
+  sh("mvn clean install");
   return false;
 }
 
@@ -311,11 +283,39 @@ def warning(String message) {
   println "WARNING: ${message}"
 }
 
+@NonCPS
 def createExtensionFunction(StepExtension extension) {
   return { stepBody ->
     stepBody.resolveStrategy = Closure.DELEGATE_FIRST
     stepBody.delegate = extension
     stepBody()
+  }
+}
+
+@NonCPS
+def addPropertyFunctions(Map config, Object bean) {
+  def extensionSuffix = "Extension"
+
+  def descriptors = PropertyUtils.getPropertyDescriptors(bean)
+  for (PropertyDescriptor descriptor : descriptors) {
+    def name = descriptor.name
+    if (descriptor.writeMethod != null) {
+      def kind = descriptor.propertyType
+      if (StepExtension.class.isAssignableFrom(kind) || StepExtension.class.equals(kind)) {
+        def key = name
+        if (key.endsWith(extensionSuffix)) {
+          key = key.substring(0, key.length() - extensionSuffix.length())
+        }
+        def extension = PropertyUtils.getProperty(bean, name)
+        if (extension == null) {
+          extension = new StepExtension()
+          PropertyUtils.setProperty(bean, name, extension)
+        }
+        config[key] = createExtensionFunction(extension)
+      } else {
+        config[name] = { value -> PropertyUtils.setProperty(bean, name, value) }
+      }
+    }
   }
 }
 

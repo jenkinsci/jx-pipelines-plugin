@@ -42,6 +42,14 @@ public abstract class PipelineDSLGlobal extends GlobalVariable {
                 "staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods invokeMethod java.lang.Object java.lang.String java.lang.Object",
                 "method java.util.Map remove java.lang.Object",
                 "method java.lang.Class isInstance java.lang.Object",
+                
+                "staticMethod org.apache.commons.beanutils.PropertyUtils getPropertyDescriptors java.lang.Object",
+                "staticMethod org.apache.commons.beanutils.PropertyUtils getProperty java.lang.Object java.lang.String",
+                "staticMethod org.apache.commons.beanutils.PropertyUtils setProperty java.lang.Object java.lang.String java.lang.Object",
+                "method java.beans.FeatureDescriptor getName",
+                "method java.beans.PropertyDescriptor getWriteMethod",
+                "method java.beans.PropertyDescriptor getPropertyType",
+                "method java.lang.Class isAssignableFrom java.lang.Class",
 
                 // for println
                 "staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods println java.lang.Object java.lang.Object",
