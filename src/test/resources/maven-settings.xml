@@ -1,0 +1,97 @@
+<settings>
+  <localRepository>/root/.mvnrepository</localRepository>
+  <!--This sends everything else to /public -->
+<!--
+  <mirrors>
+    <mirror>
+      <id>nexus</id>
+      <mirrorOf>external:*</mirrorOf>
+      <url>http://artifact-repository/content/groups/public</url>
+    </mirror>
+  </mirrors>
+-->
+
+  <!-- lets disable the download progress indicator that fills up logs -->
+  <interactiveMode>false</interactiveMode>
+
+  <servers>
+    <server>
+      <id>artifact-repo-staging</id>
+      <username>${repositoryUser}</username>
+      <password>${repositoryPassword}</password>
+    </server>
+    <server>
+      <id>artifact-repo-snapshots</id>
+      <username>${repositoryUser}</username>
+      <password>${repositoryPassword}</password>
+    </server>
+    <server>
+      <id>local-repo</id>
+      <username>${repositoryUser}</username>
+      <password>${repositoryPassword}</password>
+    </server>
+    <server>
+      <id>nexus</id>
+      <username>${repositoryUser}</username>
+      <password>${repositoryPassword}</password>
+    </server>
+    <server>
+      <id>docker.io</id>
+    </server>
+    <server>
+      <id>oss-sonatype-staging</id>
+      <username>${sonatypeUser}</username>
+      <password>${sonatypePassword}</password>
+    </server>
+    <server>
+      <id>repo.jenkins-ci.org</id> <!-- For parent 1.397 or newer; before this use id java.net-m2-repository -->
+      <username>${jenkinsCIUser}</username>
+      <password>${jenkinsCIPassword}</password>
+    </server>
+  </servers>
+
+  <profiles>
+    <profile>
+      <id>artifact-repository</id>
+
+      <properties>
+        <altDeploymentRepository>local-repo::default::http://artifact-repository/content/repositories/staging/</altDeploymentRepository>
+        <altReleaseDeploymentRepository>local-repo::default::http://artifact-repository/content/repositories/staging/</altReleaseDeploymentRepository>
+        <altSnapshotDeploymentRepository>local-repo::default::http://artifact-repository/content/repositories/staging/</altSnapshotDeploymentRepository>
+      </properties>
+
+      <repositories>
+        <repository>
+          <id>central</id>
+          <url>http://central</url>
+          <releases><enabled>true</enabled></releases>
+          <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+      </repositories>
+     <pluginRepositories>
+        <pluginRepository>
+          <id>central</id>
+          <url>http://central</url>
+          <releases><enabled>true</enabled></releases>
+          <snapshots><enabled>true</enabled></snapshots>
+        </pluginRepository>
+      </pluginRepositories>
+    </profile>
+    <profile>
+      <id>repo.jenkins-ci.org</id>
+      <properties>
+        <altDeploymentRepository>repo.jenkins-ci.org::default::https://repo.jenkins-ci.org/releases/</altDeploymentRepository>
+        <altReleaseDeploymentRepository>repo.jenkins-ci.org::default::https://repo.jenkins-ci.org/releases/</altReleaseDeploymentRepository>
+        <altSnapshotDeploymentRepository>repo.jenkins-ci.org::default::https://repo.jenkins-ci.org/snapshots/</altSnapshotDeploymentRepository>
+      </properties>
+    </profile>
+
+    <profile>
+      <id>release</id>
+      <properties>
+        <gpg.executable>gpg</gpg.executable>
+        <gpg.passphrase>${gpg.passphrase}</gpg.passphrase>
+      </properties>
+    </profile>
+  </profiles>
+</settings>
