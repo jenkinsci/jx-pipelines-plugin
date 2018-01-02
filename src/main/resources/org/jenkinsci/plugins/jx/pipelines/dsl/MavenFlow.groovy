@@ -32,10 +32,10 @@ class MavenFlow {
     addPropertyFunctions(config, arguments)
 
     if (body) {
-      def bodyBlock = config
-      body.resolveStrategy = Closure.DELEGATE_FIRST
+      def bodyBlock = new BodyAssigner(config)
       body.delegate = bodyBlock
-      body()
+      body.resolveStrategy = Closure.DELEGATE_ONLY
+      body.call()
     }
 
     script.echo "mavenFlow ${arguments}"
@@ -337,5 +337,4 @@ class MavenFlow {
     }
     return answer
   }
-
 }

@@ -62,9 +62,9 @@ public class MavenFlowDSLTest {
                 WorkflowJob p = story.j.jenkins.createProject(WorkflowJob.class, "p");
 
                 p.setDefinition(new CpsScmFlowDefinition(new GitStep(sampleRepo.toString()).createSCM(), "Jenkinsfile"));
-                WorkflowRun b = p.scheduleBuild2(0).waitForStart();
-                story.j.assertLogContains("Finished: SUCCESS",
-                        story.j.assertBuildStatusSuccess(story.j.waitForCompletion(b)));
+                WorkflowRun b = story.j.buildAndAssertSuccess(p);
+                story.j.assertLogContains("Finished: SUCCESS", b);
+                story.j.assertLogContains("replacement promote steps", b);
 
 
             }

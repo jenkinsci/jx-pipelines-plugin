@@ -103,6 +103,8 @@ public abstract class PipelineDSLGlobal extends GlobalVariable {
     }
 
     private Object loadFunction(CpsScript script, Binding binding, String functionName) throws Exception {
+        script.getClass().getClassLoader().loadClass("org.jenkinsci.plugins.jx.pipelines.dsl.CommonFunctions");
+        script.getClass().getClassLoader().loadClass("org.jenkinsci.plugins.jx.pipelines.dsl.BodyAssigner");
         Object pipelineDSL = script.getClass()
                 .getClassLoader()
                 .loadClass("org.jenkinsci.plugins.jx.pipelines.dsl." + StringUtils.capitalize(functionName))

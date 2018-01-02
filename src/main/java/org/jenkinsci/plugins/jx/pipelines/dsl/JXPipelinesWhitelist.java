@@ -41,7 +41,14 @@ public class JXPipelinesWhitelist extends Whitelist {
 
     @Override
     public boolean permitsMethod(@Nonnull Method method, @Nonnull Object o, @Nonnull Object[] objects) {
-        return permitClass(method.getDeclaringClass());
+        boolean permitted = permitClass(method.getDeclaringClass());
+        if (permitted) {
+            return true;
+        }
+        return (method.getName().equals("invokeMethod") ||
+                method.getName().equals("setProperty") ||
+                method.getName().equals("getProperty"))
+                && MethodMissingWrapper.class.isAssignableFrom(o.getClass());
     }
 
     @Override
