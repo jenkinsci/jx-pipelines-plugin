@@ -23,7 +23,7 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>3.0</version>
+    <version>3.2</version>
     <relativePath/>
   </parent>
 
@@ -100,7 +100,7 @@
     <workflow-support.version>2.16</workflow-support.version>
 
 
-    <workflow-aggregator.version>1.15</workflow-aggregator.version>
+    <workflow-aggregator.version>2.5</workflow-aggregator.version>
     <!--
         <workflow-aggregator.version>2.5</workflow-aggregator.version>
     -->
@@ -340,18 +340,25 @@
       <version>2.2.5</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.jenkins-ci.plugins</groupId>
+      <artifactId>scm-api</artifactId>
+      <version>2.2.5</version>
+      <classifier>tests</classifier>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jenkins-ci.plugins</groupId>
+      <artifactId>git</artifactId>
+      <version>3.6.4</version>
+      <classifier>tests</classifier>
+      <scope>test</scope>
+    </dependency>
 
     <dependency>
       <groupId>org.jenkins-ci.plugins.workflow</groupId>
       <artifactId>workflow-scm-step</artifactId>
       <version>${workflow-scm-step.version}</version>
-      <classifier>tests</classifier>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jenkins-ci.plugins.workflow</groupId>
-      <artifactId>workflow-aggregator</artifactId>
-      <version>1.15</version>
       <classifier>tests</classifier>
       <scope>test</scope>
     </dependency>

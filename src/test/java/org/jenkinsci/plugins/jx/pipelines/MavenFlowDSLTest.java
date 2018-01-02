@@ -15,11 +15,11 @@
  */
 package org.jenkinsci.plugins.jx.pipelines;
 
+import jenkins.plugins.git.GitSampleRepoRule;
 import jenkins.plugins.git.GitStep;
 import org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
-import org.jenkinsci.plugins.workflow.steps.scm.GitSampleRepoRule;
 import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -45,9 +45,8 @@ public class MavenFlowDSLTest {
 
         sampleRepo.init();
         sampleRepo.write("Jenkinsfile", "node {\n" +
-                "  mavenFlow (cdOrganisation: 'cheese') {\n" +
-                //"  mavenFlow {\n" +
-                //"    cdOrganisation 'cheese'\n" +
+                "  mavenFlow {\n" +
+                "    cdOrganisation 'cheese'\n" +
                 "    promoteArtifacts {\n" +
                 "      steps {\n" +
                 "        echo \"replacement promote steps\"\n" +
