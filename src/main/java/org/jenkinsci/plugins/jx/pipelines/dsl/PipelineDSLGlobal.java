@@ -36,29 +36,6 @@ public abstract class PipelineDSLGlobal extends GlobalVariable {
     protected static Whitelist createStaticWhitelist(String... lines) throws IOException {
         List<String> list = new ArrayList<>();
         list.addAll(Arrays.asList(
-                // for nested steps
-                "method java.util.Map remove java.lang.Object",
-                "method java.lang.Class isInstance java.lang.Object",
-                
-                "method java.lang.Class isAssignableFrom java.lang.Class",
-
-                // for println
-                "staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods println java.lang.Object java.lang.Object",
-
-                "method java.lang.Exception printStackTrace",
-                "method java.lang.Throwable printStackTrace",
-
-                // finding git url
-                // TODO: Shouldn't be operating on File objects directly from in CPS code
-                "new java.io.File java.lang.String",
-                "new java.io.File java.io.File java.lang.String",
-                "method java.io.File getAbsolutePath",
-
-                "staticMethod org.jenkinsci.plugins.jx.pipelines.helpers.GitHelper extractGitUrl java.lang.String",
-                "staticMethod org.jenkinsci.plugins.jx.pipelines.helpers.GitHelper parseGitRepositoryInfo java.lang.String",
-                "method org.jenkinsci.plugins.jx.pipelines.helpers.GitRepositoryInfo *",
-                "method org.jenkinsci.plugins.jx.pipelines.helpers.GitRepositoryInfo * *",
-
                 // boolean utils
                 "method java.lang.Boolean booleanValue",
 

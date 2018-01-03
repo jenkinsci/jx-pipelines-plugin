@@ -16,6 +16,7 @@
 package org.jenkinsci.plugins.jx.pipelines.helpers;
 
 import io.fabric8.utils.Strings;
+import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.Whitelisted;
 
 import java.io.Serializable;
 
@@ -43,14 +44,17 @@ public class GitRepositoryInfo implements Serializable {
                 '}';
     }
 
+    @Whitelisted
     public String getHost() {
         return host;
     }
 
+    @Whitelisted
     public String getOrganisation() {
         return organisation;
     }
 
+    @Whitelisted
     public String getName() {
         return name;
     }
@@ -58,6 +62,7 @@ public class GitRepositoryInfo implements Serializable {
     /**
      * Returns the organisation and repository name separated by / in the form <code>organisation/name</code>
      */
+    @Whitelisted
     public String getProject() {
         if (Strings.notEmpty(organisation)) {
             if (Strings.notEmpty(name)) {

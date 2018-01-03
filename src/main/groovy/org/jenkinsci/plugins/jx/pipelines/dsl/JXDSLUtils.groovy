@@ -7,6 +7,7 @@ import io.fabric8.kubernetes.client.KubernetesClient
 import io.fabric8.openshift.client.DefaultOpenShiftClient
 import io.fabric8.openshift.client.OpenShiftClient
 import jenkins.model.Jenkins
+import org.apache.commons.lang.exception.ExceptionUtils
 import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.Whitelisted
 import org.jenkinsci.plugins.workflow.cps.CpsFlowExecution
 import org.jenkinsci.plugins.workflow.cps.CpsThread
@@ -167,6 +168,11 @@ class JXDSLUtils {
         } finally {
             connection.disconnect()
         }
+    }
+
+    @Whitelisted
+    static String getFullStackTrace(Throwable t) {
+        return ExceptionUtils.getFullStackTrace(t)
     }
 
 }

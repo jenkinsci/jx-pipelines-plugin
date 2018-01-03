@@ -17,6 +17,7 @@ package org.jenkinsci.plugins.jx.pipelines.helpers;
 
 import io.fabric8.utils.IOHelpers;
 import io.fabric8.utils.Strings;
+import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.Whitelisted;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -55,6 +56,7 @@ public class GitHelper {
     /**
      * Parses the git URL string and determines the host and organisation string
      */
+    @Whitelisted
     public static GitRepositoryInfo parseGitRepositoryInfo(String gitUrl) {
         if (Strings.isNullOrBlank(gitUrl)) {
             return null;
@@ -128,6 +130,7 @@ public class GitHelper {
     /**
      * Returns the remote git URL for the given folder; looking for the .git/config file in the current directory or a parent directory
      */
+    @Whitelisted
     public static String extractGitUrl(File basedir) throws IOException {
         if (basedir.exists() && basedir.isDirectory()) {
             File gitConfig = new File(basedir, ".git/config");

@@ -199,7 +199,7 @@ class MavenFlow {
   }
 
   String doFindGitCloneURL() {
-    String text = getGitConfigFile(new File(script.pwd()));
+    String text = getGitConfigFile(script.pwd());
     if (Strings.isNullOrBlank(text)) {
       text = script.readFile(".git/config");
     }
@@ -210,18 +210,16 @@ class MavenFlow {
   }
 
 
-  String getGitConfigFile(File dir) {
-    String path = new File(dir, ".git/config").getAbsolutePath();
-    String text = script.readFile(path);
+  String getGitConfigFile(String dir) {
+    String text = script.readFile("${dir}/.git/config");
     if (text != null) {
       text = text.trim();
       if (text.length() > 0) {
         return text;
       }
     }
-    File file = dir.getParentFile();
-    if (file != null) {
-      return getGitConfigFile(file);
+    if (script.fileExists("${dir}/..")) {
+      return getGitConfigFile("${dir}/..");
     }
     return null;
   }
@@ -274,7 +272,7 @@ class MavenFlow {
 // TODO common stuff
   def logError(Throwable t) {
     println "ERROR: " + t.getMessage()
-    t.printStackTrace()
+    println JXDSLUtils.getFullStackTrace(t)
   }
 
   def logError(String message) {
@@ -283,7 +281,7 @@ class MavenFlow {
 
   def logError(String message, Throwable t) {
     println "ERROR: " + message + " " + t.getMessage()
-    t.printStackTrace()
+    println JXDSLUtils.getFullStackTrace(t)
   }
 
   def warning(String message) {
