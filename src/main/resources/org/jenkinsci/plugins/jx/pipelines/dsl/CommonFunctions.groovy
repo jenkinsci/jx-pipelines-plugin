@@ -6,9 +6,6 @@ import hudson.model.Result
 import io.fabric8.kubernetes.api.KubernetesHelper
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
 import io.fabric8.kubernetes.client.KubernetesClient
-import io.fabric8.openshift.client.DefaultOpenShiftClient
-import io.fabric8.openshift.client.OpenShiftClient
-import jenkins.model.Jenkins
 import org.jenkinsci.plugins.jx.pipelines.StepExtension
 import org.jenkinsci.plugins.jx.pipelines.helpers.MavenHelpers
 import org.jenkinsci.plugins.workflow.cps.CpsScript
@@ -907,51 +904,13 @@ class CommonFunctions {
     return false
   }
 
-/**
- * Deletes the given namespace if it exists
- *
- * @param name the name of the namespace
- * @return true if the delete was successful
- */
-  @NonCPS
-  def deleteNamespace(String name) {
-    KubernetesClient kubernetes = new DefaultKubernetesClient()
-    try {
-      def namespace = kubernetes.namespaces().withName(name).get()
-      if (namespace != null) {
-        script.echo "Deleting namespace ${name}..."
-        kubernetes.namespaces().withName(name).delete()
-        script.echo "Deleted namespace ${name}"
-
-        // TODO should we wait for the namespace to really go away???
-        namespace = kubernetes.namespaces().withName(name).get()
-        if (namespace != null) {
-          script.echo "Namespace ${name} still exists!"
-        }
-        return true
-      }
-      return false
-    } catch (e) {
-      // ignore errors
-      return false
-    }
-  }
-
-  @NonCPS
-  def isOpenShift() {
-    return new DefaultOpenShiftClient().isAdaptable(OpenShiftClient.class)
-  }
-
-  @NonCPS
-  def getCloudConfig() {
-    def openshiftCloudConfig = Jenkins.getInstance().getCloud('openshift')
-    return (openshiftCloudConfig) ? 'openshift' : 'kubernetes'
-  }
+  // deleteNamespace moved to JXDSLUtils
+  // isOpenShift moved to JXDSLUtils
+  // getCloudConfig moved to JXDSLUtils
 
 /**
  * Should be called after checkout scm
  */
-  @NonCPS
   def getScmPushUrl() {
     def url = script.sh(returnStdout: true, script: 'git config --get remote.origin.url').trim()
 
@@ -961,11 +920,12 @@ class CommonFunctions {
     return url
   }
 
+  // TODO: Won't work right in NonCPS due to calling steps.
   @NonCPS
   def openShiftImageStreamExists(String name) {
-    if (isOpenShift()) {
+    if (JXDSLUtils.isOpenShift()) {
       try {
-        def result = sh(returnStdout: true, script: 'oc describe is ${name} --namespace openshift')
+        def result = script.sh(returnStdout: true, script: 'oc describe is ${name} --namespace openshift')
         if (result && result.contains(name)) {
           script.echo "ImageStream  ${name} is already installed globally"
           return true;
@@ -985,6 +945,7 @@ class CommonFunctions {
     return false;
   }
 
+  // TODO: Won't work right in NonCPS due to calling steps.
   @NonCPS
   def openShiftImageStreamInstall(String name, String location) {
     if (openShiftImageStreamExists(name)) {
@@ -1001,7 +962,6 @@ class CommonFunctions {
     return false;
   }
 
-  @NonCPS
   def dockerRegistryPrefix() {
     def registryHost = dockerRegistryHostAndPort(null)
     def registryPrefix = ""
@@ -1011,7 +971,6 @@ class CommonFunctions {
     return registryPrefix
   }
 
-  @NonCPS
   def dockerRegistryHostAndPort(String defaultRegistryHost = "fabric8-docker-registry") {
     def registryHost = script.getProperty('env').FABRIC8_DOCKER_REGISTRY_SERVICE_HOST
     if (!registryHost) {

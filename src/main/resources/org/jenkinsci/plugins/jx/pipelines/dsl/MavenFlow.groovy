@@ -1,6 +1,5 @@
 package org.jenkinsci.plugins.jx.pipelines.dsl
 
-import com.cloudbees.groovy.cps.NonCPS
 import io.fabric8.utils.Strings
 import org.jenkinsci.plugins.jx.pipelines.FailedBuildException
 import org.jenkinsci.plugins.jx.pipelines.ShellFacade
@@ -291,7 +290,6 @@ class MavenFlow {
     println "WARNING: ${message}"
   }
 
-  @NonCPS
   def createExtensionFunction(StepExtension extension) {
     return { stepBody ->
       stepBody.resolveStrategy = Closure.DELEGATE_FIRST
@@ -300,7 +298,6 @@ class MavenFlow {
     }
   }
 
-  @NonCPS
   def addPropertyFunctions(Map config, JXPipelinesArguments bean) {
     def extensionSuffix = "Extension"
 

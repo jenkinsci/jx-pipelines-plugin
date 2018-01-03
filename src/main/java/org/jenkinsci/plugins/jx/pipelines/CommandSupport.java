@@ -334,7 +334,6 @@ public abstract class CommandSupport implements Serializable {
 
     // Implementation methods
     //-------------------------------------------------------------------------
-    @NonCPS
     protected String readFile(String path) throws IOException {
         FileReadFacade fileReadFacade = getFileReadFacade();
         if (fileReadFacade != null) {
