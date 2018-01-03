@@ -32,8 +32,8 @@
   <version>1.0.0-SNAPSHOT</version>
   <packaging>hpi</packaging>
 
-  <name>Jenkins X Pipelines Plugin</name>
-  <description>Adds a set of reusable pipeline flows for CI / CD on kubernetes in with Jenkins X</description>
+  <name>JX Pipelines Plugin</name>
+  <description>Adds a set of reusable pipeline flows for CI / CD on kubernetes</description>
 
   <url>https://wiki.jenkins.io/display/JENKINS/JX+Pipelines+Plugin</url>
 
