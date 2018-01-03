@@ -20,7 +20,9 @@ import io.fabric8.utils.Strings;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.Whitelisted;
 
+import javax.annotation.CheckForNull;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Arrays;
@@ -29,9 +31,22 @@ import java.util.List;
 /**
  */
 public class MavenHelpers {
+    @Whitelisted
+    @CheckForNull
     public static Model loadMavenPom(String pomFileContent) throws IOException, XmlPullParserException {
         if (Strings.notEmpty(pomFileContent)) {
             return new MavenXpp3Reader().read(new StringReader(pomFileContent));
+        } else {
+            return null;
+        }
+    }
+
+    @Whitelisted
+    @CheckForNull
+    public static String getProjectVersion(String pomFileContent) throws IOException, XmlPullParserException {
+        Model model = loadMavenPom(pomFileContent);
+        if (model != null) {
+            return model.getVersion();
         } else {
             return null;
         }

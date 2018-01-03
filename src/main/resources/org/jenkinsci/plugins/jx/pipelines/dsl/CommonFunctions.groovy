@@ -36,10 +36,12 @@ class CommonFunctions {
     script.sh "sed -i -r 's/ENV ${p}.*/ENV ${p} ${v}/g' ${f}"
   }
 
-  def getProjectVersion() {
-    def file = script.readFile('pom.xml')
-    def project = new XmlSlurper().parseText(file)
-    return project.version.text()
+  def getProjectVersion(String fileName = "pom.xml") {
+    if (script.fileExists(fileName)) {
+      String file = script.readFile(fileName)
+      return MavenHelpers.getProjectVersion(file)
+    }
+    return null
   }
 
   def loadMavenPom(String fileName = "pom.xml") {
@@ -50,83 +52,12 @@ class CommonFunctions {
     return null
   }
 
-
-  def getReleaseVersion(String artifact) {
-    def modelMetaData = new XmlSlurper().parse("https://oss.sonatype.org/content/repositories/releases/${artifact}/maven-metadata.xml")
-    def version = modelMetaData.versioning.release.text()
-    return version
-  }
-
-  def getMavenCentralVersion(String artifact) {
-    def modelMetaData = new XmlSlurper().parse("http://central.maven.org/maven2/${artifact}/maven-metadata.xml")
-    def version = modelMetaData.versioning.release.text()
-    return version
-  }
-
-  def getVersion(String repo, String artifact) {
-    repo = removeTrailingSlash(repo)
-    artifact = removeTrailingSlash(artifact)
-
-    def modelMetaData = new XmlSlurper().parse(repo + '/' + artifact + '/maven-metadata.xml')
-    def version = modelMetaData.versioning.release.text()
-    return version
-  }
-
-  def isArtifactAvailableInRepo(String repo, String groupId, String artifactId, String version, String ext) {
-    repo = removeTrailingSlash(repo)
-    groupId = removeTrailingSlash(groupId)
-    artifactId = removeTrailingSlash(artifactId)
-
-    def url = new URL("${repo}/${groupId}/${artifactId}/${version}/${artifactId}-${version}.${ext}")
-    HttpURLConnection connection = url.openConnection()
-
-    connection.setRequestMethod("GET")
-    connection.setDoInput(true)
-
-    try {
-      connection.connect()
-      new InputStreamReader(connection.getInputStream(), "UTF-8")
-      return true
-    } catch (FileNotFoundException e1) {
-      script.echo "File not yet available: ${url.toString()}"
-      return false
-    } finally {
-      connection.disconnect()
-    }
-  }
-
-
-  def isFileAvailableInRepo(String repo, String path, String version, String artifact) {
-    repo = removeTrailingSlash(repo)
-    path = removeTrailingSlash(path)
-    version = removeTrailingSlash(version)
-
-    def url = new URL("${repo}/${path}/${version}/${artifact}")
-
-    HttpURLConnection connection = url.openConnection()
-
-    connection.setRequestMethod("GET")
-    connection.setDoInput(true)
-
-    try {
-      connection.connect()
-      new InputStreamReader(connection.getInputStream(), "UTF-8")
-      script.echo "File is available at: ${url.toString()}"
-      return true
-    } catch (FileNotFoundException e1) {
-      script.echo "File not yet available: ${url.toString()}"
-      return false
-    } finally {
-      connection.disconnect()
-    }
-  }
-
-  def removeTrailingSlash(String myString) {
-    if (myString.endsWith("/")) {
-      return myString.substring(0, myString.length() - 1)
-    }
-    return myString
-  }
+  // getReleaseVersion moved to JXDSLUtils
+  // getMavenCentralVersion moved to JXDSLUtils
+  // getVersion moved to JXDSLUtils
+  // isArtifactAvailableInRepo moved to JXDSLUtils
+  // isFileAvailableInRepo moved to JXDSLUtils
+  // removeTrailingSlash moved to JXDSLUtils
 
   def getRepoIds() {
     // we could have multiple staging repos created, we need to write the names of all the generated files to a well known
@@ -311,7 +242,7 @@ class CommonFunctions {
   }
 
   def helm() {
-    def pluginVersion = getReleaseVersion("io/fabric8/fabric8-maven-plugin")
+    def pluginVersion = JXDSLUtils.getReleaseVersion("io/fabric8/fabric8-maven-plugin")
     try {
       script.sh "mvn -B io.fabric8:fabric8-maven-plugin:${pluginVersion}:helm"
       script.sh "mvn -B io.fabric8:fabric8-maven-plugin:${pluginVersion}:helm-push"

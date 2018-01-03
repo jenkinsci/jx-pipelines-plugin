@@ -28,7 +28,7 @@ class WaitUntilArtifactSyncedWithCentral {
 
         script.waitUntil {
           script.retry(3) {
-            flow.isArtifactAvailableInRepo(repo, groupId.replaceAll('\\.', '/'), artifactId, version, ext)
+            JXDSLUtils.isArtifactAvailableInRepo(repo, groupId.replaceAll('\\.', '/'), artifactId, version, ext)
           }
         }
 
