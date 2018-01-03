@@ -16,8 +16,12 @@
  */
 package org.jenkinsci.plugins.jx.pipelines.arguments;
 
+import hudson.Extension;
 import io.jenkins.functions.Argument;
+import org.jenkinsci.Symbol;
 import org.jenkinsci.plugins.jx.pipelines.helpers.ConfigHelper;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 
 import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
@@ -27,7 +31,7 @@ import java.util.Map;
 
 /**
  */
-public class StageProjectArguments implements Serializable {
+public class StageProjectArguments extends JXPipelinesArguments<StageProjectArguments> {
     private static final long serialVersionUID = 1L;
 
     @Argument
@@ -56,7 +60,7 @@ public class StageProjectArguments implements Serializable {
     @Argument
     private List<String> mavenProfiles = new ArrayList<>();
 
-
+    @DataBoundConstructor
     public StageProjectArguments() {
     }
 
@@ -65,15 +69,14 @@ public class StageProjectArguments implements Serializable {
     }
 
     public static StageProjectArguments newInstance(Map<String, Object> map) {
-        StageProjectArguments answer = new StageProjectArguments();
-        ConfigHelper.populateBeanFromConfiguration(answer, map);
-        return answer;
+        return ConfigHelper.populateBeanFromConfiguration(StageProjectArguments.class, map);
     }
 
     public boolean isUseMavenForNextVersion() {
         return useMavenForNextVersion;
     }
 
+    @DataBoundSetter
     public void setUseMavenForNextVersion(boolean useMavenForNextVersion) {
         this.useMavenForNextVersion = useMavenForNextVersion;
     }
@@ -82,6 +85,7 @@ public class StageProjectArguments implements Serializable {
         return extraSetVersionArgs;
     }
 
+    @DataBoundSetter
     public void setExtraSetVersionArgs(String extraSetVersionArgs) {
         this.extraSetVersionArgs = extraSetVersionArgs;
     }
@@ -90,6 +94,7 @@ public class StageProjectArguments implements Serializable {
         return extraImagesToStage;
     }
 
+    @DataBoundSetter
     public void setExtraImagesToStage(List<String> extraImagesToStage) {
         this.extraImagesToStage = extraImagesToStage;
     }
@@ -98,6 +103,7 @@ public class StageProjectArguments implements Serializable {
         return project;
     }
 
+    @DataBoundSetter
     public void setProject(String project) {
         this.project = project;
     }
@@ -106,6 +112,7 @@ public class StageProjectArguments implements Serializable {
         return containerName;
     }
 
+    @DataBoundSetter
     public void setContainerName(String containerName) {
         this.containerName = containerName;
     }
@@ -114,6 +121,7 @@ public class StageProjectArguments implements Serializable {
         return clientsContainerName;
     }
 
+    @DataBoundSetter
     public void setClientsContainerName(String clientsContainerName) {
         this.clientsContainerName = clientsContainerName;
     }
@@ -122,6 +130,7 @@ public class StageProjectArguments implements Serializable {
         return useStaging;
     }
 
+    @DataBoundSetter
     public void setUseStaging(boolean useStaging) {
         this.useStaging = useStaging;
     }
@@ -130,6 +139,7 @@ public class StageProjectArguments implements Serializable {
         return skipTests;
     }
 
+    @DataBoundSetter
     public void setSkipTests(boolean skipTests) {
         this.skipTests = skipTests;
     }
@@ -138,6 +148,7 @@ public class StageProjectArguments implements Serializable {
         return stageRepositoryUrl;
     }
 
+    @DataBoundSetter
     public void setStageRepositoryUrl(String stageRepositoryUrl) {
         this.stageRepositoryUrl = stageRepositoryUrl;
     }
@@ -146,6 +157,7 @@ public class StageProjectArguments implements Serializable {
         return stageServerId;
     }
 
+    @DataBoundSetter
     public void setStageServerId(String stageServerId) {
         this.stageServerId = stageServerId;
     }
@@ -154,6 +166,7 @@ public class StageProjectArguments implements Serializable {
         return disableGitPush;
     }
 
+    @DataBoundSetter
     public void setDisableGitPush(boolean disableGitPush) {
         this.disableGitPush = disableGitPush;
     }
@@ -162,7 +175,13 @@ public class StageProjectArguments implements Serializable {
         return mavenProfiles;
     }
 
+    @DataBoundSetter
     public void setMavenProfiles(List<String> mavenProfiles) {
         this.mavenProfiles = mavenProfiles;
+    }
+
+    @Extension @Symbol("stageProject")
+    public static class DescriptorImpl extends JXPipelinesArgumentsDescriptor<StageProjectArguments> {
+
     }
 }

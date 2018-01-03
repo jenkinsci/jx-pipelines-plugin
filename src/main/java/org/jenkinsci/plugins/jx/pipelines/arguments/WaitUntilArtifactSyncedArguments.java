@@ -16,16 +16,20 @@
  */
 package org.jenkinsci.plugins.jx.pipelines.arguments;
 
+import hudson.Extension;
 import io.jenkins.functions.Argument;
+import org.jenkinsci.Symbol;
 import org.jenkinsci.plugins.jx.pipelines.StepExtension;
 import org.jenkinsci.plugins.jx.pipelines.model.ServiceConstants;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 
 import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
 
 /**
  */
-public class WaitUntilArtifactSyncedArguments implements Serializable {
+public class WaitUntilArtifactSyncedArguments extends JXPipelinesArguments<WaitUntilArtifactSyncedArguments> {
     private static final long serialVersionUID = 1L;
 
     @Argument
@@ -44,6 +48,7 @@ public class WaitUntilArtifactSyncedArguments implements Serializable {
 
     private StepExtension stepExtension;
 
+    @DataBoundConstructor
     public WaitUntilArtifactSyncedArguments() {
     }
 
@@ -78,6 +83,7 @@ public class WaitUntilArtifactSyncedArguments implements Serializable {
         return repositoryUrl;
     }
 
+    @DataBoundSetter
     public void setRepositoryUrl(String repositoryUrl) {
         this.repositoryUrl = repositoryUrl;
     }
@@ -86,6 +92,7 @@ public class WaitUntilArtifactSyncedArguments implements Serializable {
         return groupId;
     }
 
+    @DataBoundSetter
     public void setGroupId(String groupId) {
         this.groupId = groupId;
     }
@@ -94,6 +101,7 @@ public class WaitUntilArtifactSyncedArguments implements Serializable {
         return artifactId;
     }
 
+    @DataBoundSetter
     public void setArtifactId(String artifactId) {
         this.artifactId = artifactId;
     }
@@ -102,6 +110,7 @@ public class WaitUntilArtifactSyncedArguments implements Serializable {
         return version;
     }
 
+    @DataBoundSetter
     public void setVersion(String version) {
         this.version = version;
     }
@@ -110,6 +119,7 @@ public class WaitUntilArtifactSyncedArguments implements Serializable {
         return extension;
     }
 
+    @DataBoundSetter
     public void setExtension(String extension) {
         this.extension = extension;
     }
@@ -118,7 +128,13 @@ public class WaitUntilArtifactSyncedArguments implements Serializable {
         return stepExtension;
     }
 
+    @DataBoundSetter
     public void setStepExtension(StepExtension stepExtension) {
         this.stepExtension = stepExtension;
+    }
+
+    @Extension @Symbol("waitUntilArtifactSynced")
+    public static class DescriptorImpl extends JXPipelinesArgumentsDescriptor<WaitUntilArtifactSyncedArguments> {
+
     }
 }

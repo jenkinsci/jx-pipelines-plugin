@@ -16,13 +16,17 @@
  */
 package org.jenkinsci.plugins.jx.pipelines.arguments;
 
+import hudson.Extension;
 import io.jenkins.functions.Argument;
+import org.jenkinsci.Symbol;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 
 import java.io.Serializable;
 
 /**
  */
-public class SonarQubeScannerArguments implements Serializable {
+public class SonarQubeScannerArguments extends JXPipelinesArguments<SonarQubeScannerArguments> {
     private static final long serialVersionUID = 1L;
 
     @Argument
@@ -34,6 +38,7 @@ public class SonarQubeScannerArguments implements Serializable {
     @Argument
     private boolean runSonarScanner = true;
 
+    @DataBoundConstructor
     public SonarQubeScannerArguments() {
     }
 
@@ -48,6 +53,7 @@ public class SonarQubeScannerArguments implements Serializable {
         return serviceName;
     }
 
+    @DataBoundSetter
     public void setServiceName(String serviceName) {
         this.serviceName = serviceName;
     }
@@ -56,6 +62,7 @@ public class SonarQubeScannerArguments implements Serializable {
         return servicePort;
     }
 
+    @DataBoundSetter
     public void setServicePort(int servicePort) {
         this.servicePort = servicePort;
     }
@@ -64,6 +71,7 @@ public class SonarQubeScannerArguments implements Serializable {
         return runSonarScanner;
     }
 
+    @DataBoundSetter
     public void setRunSonarScanner(boolean runSonarScanner) {
         this.runSonarScanner = runSonarScanner;
     }
@@ -72,7 +80,13 @@ public class SonarQubeScannerArguments implements Serializable {
         return scannerVersion;
     }
 
+    @DataBoundSetter
     public void setScannerVersion(String scannerVersion) {
         this.scannerVersion = scannerVersion;
+    }
+
+    @Extension @Symbol("sonarQubeScanner")
+    public static class DescriptorImpl extends JXPipelinesArgumentsDescriptor<SonarQubeScannerArguments> {
+
     }
 }

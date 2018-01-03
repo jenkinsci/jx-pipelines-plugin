@@ -16,8 +16,12 @@
  */
 package org.jenkinsci.plugins.jx.pipelines.arguments;
 
+import hudson.Extension;
 import io.jenkins.functions.Argument;
+import org.jenkinsci.Symbol;
 import org.jenkinsci.plugins.jx.pipelines.StepExtension;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 
 import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
@@ -26,7 +30,7 @@ import java.util.List;
 
 /**
  */
-public class TagImagesArguments implements Serializable {
+public class TagImagesArguments extends JXPipelinesArguments<TagImagesArguments> {
     private static final long serialVersionUID = 1L;
 
     @Argument
@@ -39,6 +43,7 @@ public class TagImagesArguments implements Serializable {
 
     private StepExtension stepExtension;
 
+    @DataBoundConstructor
     public TagImagesArguments() {
     }
 
@@ -52,6 +57,7 @@ public class TagImagesArguments implements Serializable {
         return images;
     }
 
+    @DataBoundSetter
     public void setImages(List<String> images) {
         this.images = images;
     }
@@ -60,6 +66,7 @@ public class TagImagesArguments implements Serializable {
         return tag;
     }
 
+    @DataBoundSetter
     public void setTag(String tag) {
         this.tag = tag;
     }
@@ -68,6 +75,7 @@ public class TagImagesArguments implements Serializable {
         return containerName;
     }
 
+    @DataBoundSetter
     public void setContainerName(String containerName) {
         this.containerName = containerName;
     }
@@ -76,7 +84,13 @@ public class TagImagesArguments implements Serializable {
         return stepExtension;
     }
 
+    @DataBoundSetter
     public void setStepExtension(StepExtension stepExtension) {
         this.stepExtension = stepExtension;
+    }
+
+    @Extension @Symbol("tagImages")
+    public static class DescriptorImpl extends JXPipelinesArgumentsDescriptor<TagImagesArguments> {
+
     }
 }

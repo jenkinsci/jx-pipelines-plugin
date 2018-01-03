@@ -16,7 +16,11 @@
  */
 package org.jenkinsci.plugins.jx.pipelines.arguments;
 
+import hudson.Extension;
 import io.jenkins.functions.Argument;
+import org.jenkinsci.Symbol;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 
 import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
@@ -25,7 +29,7 @@ import java.util.List;
 
 /**
  */
-public class StageExtraImagesArguments implements Serializable {
+public class StageExtraImagesArguments extends JXPipelinesArguments<StageExtraImagesArguments> {
     private static final long serialVersionUID = 1L;
 
     @Argument
@@ -34,6 +38,7 @@ public class StageExtraImagesArguments implements Serializable {
     @Argument
     private List<String> images = new ArrayList<>();
 
+    @DataBoundConstructor
     public StageExtraImagesArguments() {
     }
 
@@ -54,6 +59,7 @@ public class StageExtraImagesArguments implements Serializable {
         return tag;
     }
 
+    @DataBoundSetter
     public void setTag(String tag) {
         this.tag = tag;
     }
@@ -62,7 +68,13 @@ public class StageExtraImagesArguments implements Serializable {
         return images;
     }
 
+    @DataBoundSetter
     public void setImages(List<String> images) {
         this.images = images;
+    }
+
+    @Extension @Symbol("stageExtraImages")
+    public static class DescriptorImpl extends JXPipelinesArgumentsDescriptor<StageExtraImagesArguments> {
+
     }
 }

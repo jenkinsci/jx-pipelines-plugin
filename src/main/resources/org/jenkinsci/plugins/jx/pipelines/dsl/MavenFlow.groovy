@@ -2,20 +2,19 @@ package org.jenkinsci.plugins.jx.pipelines.dsl
 
 import com.cloudbees.groovy.cps.NonCPS
 import io.fabric8.utils.Strings
-import org.apache.commons.beanutils.PropertyUtils
 import org.jenkinsci.plugins.jx.pipelines.FailedBuildException
 import org.jenkinsci.plugins.jx.pipelines.ShellFacade
 import org.jenkinsci.plugins.jx.pipelines.StepExtension
 import org.jenkinsci.plugins.jx.pipelines.Utils
+import org.jenkinsci.plugins.jx.pipelines.arguments.JXPipelinesArguments
 import org.jenkinsci.plugins.jx.pipelines.arguments.MavenFlowArguments
 import org.jenkinsci.plugins.jx.pipelines.arguments.ReleaseProjectArguments
 import org.jenkinsci.plugins.jx.pipelines.arguments.StageProjectArguments
+import org.jenkinsci.plugins.jx.pipelines.helpers.ConfigHelper
 import org.jenkinsci.plugins.jx.pipelines.helpers.GitHelper
 import org.jenkinsci.plugins.jx.pipelines.helpers.GitRepositoryInfo
 import org.jenkinsci.plugins.jx.pipelines.model.StagedProjectInfo
 import org.jenkinsci.plugins.workflow.cps.CpsScript
-
-import java.beans.PropertyDescriptor
 
 class MavenFlow {
   private CpsScript script
@@ -36,6 +35,7 @@ class MavenFlow {
       body.delegate = bodyBlock
       body.resolveStrategy = Closure.DELEGATE_ONLY
       body.call()
+      arguments = bodyBlock.argumentInstance(MavenFlowArguments.class)
     }
 
     script.echo "mavenFlow ${arguments}"
@@ -301,29 +301,18 @@ class MavenFlow {
   }
 
   @NonCPS
-  def addPropertyFunctions(Map config, Object bean) {
+  def addPropertyFunctions(Map config, JXPipelinesArguments bean) {
     def extensionSuffix = "Extension"
 
-    def descriptors = PropertyUtils.getPropertyDescriptors(bean)
-
-    for (PropertyDescriptor descriptor : descriptors) {
-      def name = descriptor.name
-      if (descriptor.writeMethod != null) {
-        def kind = descriptor.propertyType
-        if (StepExtension.class.isAssignableFrom(kind) || StepExtension.class.equals(kind)) {
-          def key = name
-          if (key.endsWith(extensionSuffix)) {
-            key = key.substring(0, key.length() - extensionSuffix.length())
-          }
-          def extension = PropertyUtils.getProperty(bean, name)
-          if (extension == null) {
-            extension = new StepExtension()
-            PropertyUtils.setProperty(bean, name, extension)
-          }
-          config[key] = createExtensionFunction(extension)
-        } else {
-          config[name] = { value -> PropertyUtils.setProperty(bean, name, value) }
+    ConfigHelper.getArgumentFields((Class<? extends JXPipelinesArguments>)bean.getClass()).each { n, k ->
+      if (StepExtension.class.isAssignableFrom(k) || StepExtension.class == k) {
+        String extKey = n
+        if (extKey.endsWith(extensionSuffix)) {
+          extKey = extKey.substring(0, extKey.length() - extensionSuffix.length())
         }
+        config[extKey] = [n, createExtensionFunction(new StepExtension())]
+      } else {
+        config[n] = [n, { value -> value }]
       }
     }
   }
