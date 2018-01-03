@@ -39,8 +39,11 @@ public class MavenFlowDSLTest {
     @Rule
     public GitSampleRepoRule sampleRepo = new GitSampleRepoRule();
 
-    //@Ignore
-    @Test
+    /*
+       TODO lets disable for now as the main integration test, KubernetesMavenFlowDSLTest validates
+       the use of the promoteArtifacts { steps } capability
+     */
+    @Ignore
     public void smokeTests() throws Exception {
 
         sampleRepo.init();
