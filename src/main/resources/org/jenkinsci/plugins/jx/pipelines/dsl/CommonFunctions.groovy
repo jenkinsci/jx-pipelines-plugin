@@ -1040,12 +1040,12 @@ class CommonFunctions {
     }
     if (stepExtension.preBlock instanceof Closure) {
       println "StepExtension invoking pre steps"
-      stepExtension.preBlock()
+      invokeStepBlock(stepExtension.preBlock)
     }
     def answer
     if (stepExtension.stepsBlock instanceof Closure) {
       println "StepExtension invoking replacement steps"
-      answer = stepExtension.stepsBlock()
+      answer = invokeStepBlock(stepExtension.stepsBlock)
     } else if (body != null) {
       if (stepExtension.disabled) {
         println "StepExtension has disabled the steps"
@@ -1055,9 +1055,14 @@ class CommonFunctions {
     }
     if (stepExtension.postBlock instanceof Closure) {
       println "StepExtension invoking post steps"
-      stepExtension.postBlock()
+      invokeStepBlock(stepExtension.postBlock)
     }
     return answer
   }
 
+  private def invokeStepBlock(Closure stepBlock) {
+    stepBlock.delegate = script
+    stepBlock.resolveStrategy = Closure.DELEGATE_FIRST
+    return stepBlock()
+  }
 }

@@ -184,12 +184,12 @@ class MavenFlow {
       }
     }
     StageProjectArguments stageProjectArguments = arguments.createStageProjectArguments(repositoryInfo)
-    StagedProjectInfo stagedProjectInfo = stageProject(stageProjectArguments)
+    StagedProjectInfo stagedProjectInfo = script.stageProject(stageProjectArguments)
 
     println "Staging stagedProjectInfo = ${stagedProjectInfo}"
 
     ReleaseProjectArguments releaseProjectArguments = arguments.createReleaseProjectArguments(stagedProjectInfo)
-    return releaseProject(releaseProjectArguments)
+    return script.releaseProject(releaseProjectArguments)
   }
 
   String remoteGitCloneUrl(GitRepositoryInfo info) {
@@ -200,7 +200,7 @@ class MavenFlow {
   }
 
   String doFindGitCloneURL() {
-    String text = getGitConfigFile(new File(pwd()));
+    String text = getGitConfigFile(new File(script.pwd()));
     if (Strings.isNullOrBlank(text)) {
       text = script.readFile(".git/config");
     }
