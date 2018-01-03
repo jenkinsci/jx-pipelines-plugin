@@ -27,20 +27,17 @@
     <relativePath/>
   </parent>
 
-<!--
   <groupId>org.jenkins-ci.plugins</groupId>
--->
-  <groupId>io.fabric8.jenkins.pipelines</groupId>
-  <artifactId>fabric8-pipelines</artifactId>
-  <version>0.3-SNAPSHOT</version>
+  <artifactId>jx-pipelines</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
   <packaging>hpi</packaging>
 
-  <name>Plugin for Fabric8 Pipelines</name>
-  <description></description>
+  <name>Jenkins X Pipelines Plugin</name>
+  <description>Adds a set of reusable pipeline flows for CI / CD on kubernetes in with Jenkins X</description>
 
-  <url>https://wiki.jenkins-ci.org/display/JENKINS/Fabric8+Pipelines+Plugin</url>
+  <url>https://wiki.jenkins.io/display/JENKINS/JX+Pipelines+Plugin</url>
 
-  <inceptionYear>2017</inceptionYear>
+  <inceptionYear>2018</inceptionYear>
 
   <licenses>
     <license>
@@ -50,10 +47,10 @@
   </licenses>
 
   <scm>
-    <connection>scm:git:ssh://github.com/fabric8-jenkins/fabric8-pipelines-plugin.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com/fabric8-jenkins/fabric8-pipelines-plugin.git
+    <connection>scm:git:ssh://github.com/jenkinsci/jx-pipelines-plugin.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/jenkinsci/jx-pipelines-plugin.git
     </developerConnection>
-    <url>https://github.com/fabric8-jenkins/fabric8-pipelines-plugin</url>
+    <url>https://github.com/jenkinsci/jx-pipelines-plugin</url>
     <tag>HEAD</tag>
   </scm>
 
@@ -132,26 +129,13 @@
     <kubernetes-plugin.version>1.1</kubernetes-plugin.version>
   </properties>
 
-  <distributionManagement>
-    <repository>
-      <id>oss-sonatype-staging</id>
-      <name>Sonatype Staging Repository</name>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-    </repository>
-    <snapshotRepository>
-      <id>oss-sonatype-snapshots</id>
-      <name>OSS Sonatype Nexus Snapshots</name>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    </snapshotRepository>
-  </distributionManagement>
-
   <developers>
     <developer>
-      <id>geeks</id>
-      <name>Fabric8 Development Team</name>
-      <email>fabric8@googlegroups.com</email>
-      <organization>fabric8</organization>
-      <organizationUrl>http://fabric8.io/</organizationUrl>
+      <id>committers</id>
+      <name>Jenkins X Development Team</name>
+      <email>jenkins-x@googlegroups.com</email>
+      <organization>Jenkins X</organization>
+      <organizationUrl>https://jenkins-x.github.io/jenkins-x-website/</organizationUrl>
     </developer>
   </developers>
 
@@ -550,7 +534,7 @@
     <profile>
       <id>dogfood-cd</id>
       <properties>
-        <testGitUrl>https://github.com/fabric8-jenkins/fabric8-pipelines-plugin</testGitUrl>
+        <testGitUrl>https://github.com/jstrachan/jx-pipelines-plugin</testGitUrl>
         <testGitBranch>master</testGitBranch>
       </properties>
     </profile>
