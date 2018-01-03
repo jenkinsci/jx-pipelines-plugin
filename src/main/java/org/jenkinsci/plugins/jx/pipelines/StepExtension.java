@@ -17,6 +17,7 @@
 package org.jenkinsci.plugins.jx.pipelines;
 
 import org.jenkinsci.plugins.jx.pipelines.helpers.StringHelpers;
+import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.Whitelisted;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -46,17 +47,20 @@ public class StepExtension implements Serializable {
         return "StepExtension{" + String.join(", ", list) + "}";
     }
 
+    @Whitelisted
     public StepExtension steps(Object stepsBlock) {
         System.out.println("Setting stepsBlock " + stepsBlock + " on StepExtension");
         this.stepsBlock = stepsBlock;
         return this;
     }
 
+    @Whitelisted
     public StepExtension pre(Object preBlock) {
         this.preBlock = preBlock;
         return this;
     }
 
+    @Whitelisted
     public StepExtension post(Object postBlock) {
         this.postBlock = postBlock;
         return this;

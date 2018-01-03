@@ -17,6 +17,7 @@ package org.jenkinsci.plugins.jx.pipelines.dsl;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyCodeSource;
+import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.scriptsecurity.sandbox.Whitelist;
 import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.StaticWhitelist;
 import org.jenkinsci.plugins.workflow.cps.CpsScript;
@@ -35,11 +36,7 @@ public abstract class PipelineDSLGlobal extends GlobalVariable {
     protected static Whitelist createStaticWhitelist(String... lines) throws IOException {
         List<String> list = new ArrayList<>();
         list.addAll(Arrays.asList(
-                // for exposing sh()
-                "method groovy.lang.GroovyObject invokeMethod java.lang.String java.lang.Object",
-
                 // for nested steps
-                "staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods invokeMethod java.lang.Object java.lang.String java.lang.Object",
                 "method java.util.Map remove java.lang.Object",
                 "method java.lang.Class isInstance java.lang.Object",
                 
@@ -58,6 +55,7 @@ public abstract class PipelineDSLGlobal extends GlobalVariable {
                 "method java.lang.Throwable printStackTrace",
 
                 // finding git url
+                // TODO: Shouldn't be operating on File objects directly from in CPS code
                 "new java.io.File java.lang.String",
                 "new java.io.File java.io.File java.lang.String",
                 "method java.io.File getAbsolutePath",
@@ -101,25 +99,18 @@ public abstract class PipelineDSLGlobal extends GlobalVariable {
             throw new IllegalStateException("Expected to be called from CpsThread");
         }
 
-        ClassLoader cl = getClass().getClassLoader();
-
-        return loadFunction(binding, c, cl, getFunctionName());
+        return loadFunction(script, binding, getFunctionName());
     }
 
-    private Object loadFunction(Binding binding, CpsThread c, ClassLoader cl, String functionName) throws IOException, InstantiationException, IllegalAccessException {
-        String fileName = functionName + ".groovy";
-        String scriptPath = "dsl/" + fileName;
-        try (Reader r = new InputStreamReader(cl.getResourceAsStream(scriptPath), "UTF-8")) {
-            GroovyCodeSource gsc = new GroovyCodeSource(r, fileName, cl.getResource(scriptPath).getFile());
-            gsc.setCachable(true);
-
-            Object pipelineDSL = c.getExecution()
-                    .getShell()
-                    .getClassLoader()
-                    .parseClass(gsc)
-                    .newInstance();
-            binding.setVariable(functionName, pipelineDSL);
-            return pipelineDSL;
-        }
+    private Object loadFunction(CpsScript script, Binding binding, String functionName) throws Exception {
+        script.getClass().getClassLoader().loadClass("org.jenkinsci.plugins.jx.pipelines.dsl.CommonFunctions");
+        script.getClass().getClassLoader().loadClass("org.jenkinsci.plugins.jx.pipelines.dsl.BodyAssigner");
+        Object pipelineDSL = script.getClass()
+                .getClassLoader()
+                .loadClass("org.jenkinsci.plugins.jx.pipelines.dsl." + StringUtils.capitalize(functionName))
+                .getConstructor(CpsScript.class)
+                .newInstance(script);
+        binding.setVariable(functionName, pipelineDSL);
+        return pipelineDSL;
     }
 }
