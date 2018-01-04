@@ -190,7 +190,7 @@ class StageProject {
 
 
   def warning(String message) {
-    println "WARNING: ${message}"
+    script.echo "WARNING: ${message}"
   }
 
 /**

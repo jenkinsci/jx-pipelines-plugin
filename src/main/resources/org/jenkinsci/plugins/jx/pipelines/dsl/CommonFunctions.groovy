@@ -851,8 +851,6 @@ class CommonFunctions {
     return url
   }
 
-  // TODO: Won't work right in NonCPS due to calling steps.
-  @NonCPS
   def openShiftImageStreamExists(String name) {
     if (JXDSLUtils.isOpenShift()) {
       try {
@@ -862,7 +860,7 @@ class CommonFunctions {
           return true;
         } else {
           //see if its already in our namespace
-          def namespace = kubernetes.getNamespace();
+          def namespace = script.getProperty('kubernetes').getNamespace();
           result = script.sh(returnStdout: true, script: 'oc describe is ${name} --namespace ${namespace}')
           if (result && result.contains(name)) {
             script.echo "ImageStream  ${name} is already installed in project ${namespace}"
@@ -876,14 +874,12 @@ class CommonFunctions {
     return false;
   }
 
-  // TODO: Won't work right in NonCPS due to calling steps.
-  @NonCPS
   def openShiftImageStreamInstall(String name, String location) {
     if (openShiftImageStreamExists(name)) {
       script.echo "ImageStream ${name} does not exist - installing ..."
       try {
         def result = script.sh(returnStdout: true, script: 'oc create -f  ${location}')
-        def namespace = kubernetes.getNamespace();
+        def namespace = script.getProperty('kubernetes').getNamespace();
         script.echo "ImageStream ${name} now installed in project ${namespace}"
         return true;
       } catch (e) {
@@ -920,7 +916,7 @@ class CommonFunctions {
       room = "release"
     }
     // TODO call hubotSend now
-    println "CHAT: ${room}: ${message}"
+    script.echo "CHAT: ${room}: ${message}"
   }
 
 /** Invokes a step extension on the given closure body */
@@ -929,22 +925,22 @@ class CommonFunctions {
       stepExtension = new StepExtension()
     }
     if (stepExtension.preBlock instanceof Closure) {
-      println "StepExtension invoking pre steps"
+      script.echo "StepExtension invoking pre steps"
       invokeStepBlock(stepExtension.preBlock)
     }
     def answer
     if (stepExtension.stepsBlock instanceof Closure) {
-      println "StepExtension invoking replacement steps"
+      script.echo "StepExtension invoking replacement steps"
       answer = invokeStepBlock(stepExtension.stepsBlock)
     } else if (body != null) {
       if (stepExtension.disabled) {
-        println "StepExtension has disabled the steps"
+        script.echo "StepExtension has disabled the steps"
       } else {
         answer = body()
       }
     }
     if (stepExtension.postBlock instanceof Closure) {
-      println "StepExtension invoking post steps"
+      script.echo "StepExtension invoking post steps"
       invokeStepBlock(stepExtension.postBlock)
     }
     return answer

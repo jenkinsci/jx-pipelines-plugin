@@ -48,7 +48,7 @@ class MavenFlow {
 
       if (!arguments.gitCloneUrl) {
         arguments.gitCloneUrl = doFindGitCloneURL()
-        println "gitCloneUrl now is ${arguments.gitCloneUrl}"
+        script.echo "gitCloneUrl now is ${arguments.gitCloneUrl}"
       }
 
       if (isCi(arguments)) {
@@ -60,7 +60,7 @@ class MavenFlow {
         ciPipeline(arguments);
       }
 
-      println("Completed")
+      script.echo("Completed")
       if (arguments.pauseOnSuccess) {
         script.input message: 'The build pod has been paused'
       }
@@ -110,7 +110,7 @@ class MavenFlow {
     }
     String organisation = arguments.getCdOrganisation();
     List<String> cdBranches = arguments.getCdBranches();
-    //println("invoked with organisation " + organisation + " branches " + cdBranches);
+    //script.echo("invoked with organisation " + organisation + " branches " + cdBranches);
     if (cdBranches != null && cdBranches.size() > 0 && Strings.notEmpty(organisation)) {
       def branch = utils.getBranch()
       if (cdBranches.contains(branch)) {
@@ -120,7 +120,7 @@ class MavenFlow {
           if (info != null) {
             boolean answer = organisation.equals(info.getOrganisation());
             if (!answer) {
-              println("Not a CD pipeline as the organisation is " + info.getOrganisation() + " instead of " + organisation);
+              script.echo("Not a CD pipeline as the organisation is " + info.getOrganisation() + " instead of " + organisation);
             }
             return answer;
           }
@@ -128,7 +128,7 @@ class MavenFlow {
           warning("No git URL could be found so assuming not a CD pipeline");
         }
       } else {
-        println("branch ${branch} is not in the cdBranches ${cdBranches} so this is a CI pipeline")
+        script.echo("branch ${branch} is not in the cdBranches ${cdBranches} so this is a CI pipeline")
       }
     } else {
       warning("No cdOrganisation or cdBranches configured so assuming not a CD pipeline");
@@ -156,7 +156,7 @@ class MavenFlow {
  * Implements the CI pipeline
  */
   Boolean ciPipeline(MavenFlowArguments arguments) {
-    println("Performing CI pipeline");
+    script.echo("Performing CI pipeline");
     //sh("mvn clean install");
     script.sh("mvn clean install");
     return false;
@@ -166,7 +166,7 @@ class MavenFlow {
  * Implements the CD pipeline
  */
   Boolean cdPipeline(MavenFlowArguments arguments) {
-    println("Performing CD pipeline");
+    script.echo("Performing CD pipeline");
     String gitCloneUrl = arguments.getGitCloneUrl();
     if (Strings.isNullOrBlank(gitCloneUrl)) {
       logError("No gitCloneUrl configured for this pipeline!");
@@ -177,7 +177,7 @@ class MavenFlow {
       String remoteGitCloneUrl = remoteGitCloneUrl(repositoryInfo)
       if (remoteGitCloneUrl != null) {
         script.container("clients") {
-          println "setting remote URL to ${remoteGitCloneUrl}"
+          script.echo "setting remote URL to ${remoteGitCloneUrl}"
           script.sh("git remote set-url origin " + remoteGitCloneUrl);
         }
       }
@@ -185,7 +185,7 @@ class MavenFlow {
     StageProjectArguments stageProjectArguments = arguments.createStageProjectArguments(repositoryInfo)
     StagedProjectInfo stagedProjectInfo = script.stageProject(stageProjectArguments)
 
-    println "Staging stagedProjectInfo = ${stagedProjectInfo}"
+    script.echo "Staging stagedProjectInfo = ${stagedProjectInfo}"
 
     ReleaseProjectArguments releaseProjectArguments = arguments.createReleaseProjectArguments(stagedProjectInfo)
     return script.releaseProject(releaseProjectArguments)
@@ -271,21 +271,21 @@ class MavenFlow {
 
 // TODO common stuff
   def logError(Throwable t) {
-    println "ERROR: " + t.getMessage()
-    println JXDSLUtils.getFullStackTrace(t)
+    script.echo "ERROR: " + t.getMessage()
+    script.echo JXDSLUtils.getFullStackTrace(t)
   }
 
   def logError(String message) {
-    println "ERROR: " + message
+    script.echo "ERROR: " + message
   }
 
   def logError(String message, Throwable t) {
-    println "ERROR: " + message + " " + t.getMessage()
-    println JXDSLUtils.getFullStackTrace(t)
+    script.echo "ERROR: " + message + " " + t.getMessage()
+    script.echo JXDSLUtils.getFullStackTrace(t)
   }
 
   def warning(String message) {
-    println "WARNING: ${message}"
+    script.echo "WARNING: ${message}"
   }
 
   def createExtensionFunction(StepExtension extension) {
