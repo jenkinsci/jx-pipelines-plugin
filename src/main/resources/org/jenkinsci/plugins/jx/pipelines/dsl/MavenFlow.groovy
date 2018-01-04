@@ -37,7 +37,7 @@ class MavenFlow {
       arguments = bodyBlock.argumentInstance(MavenFlowArguments.class)
     }
 
-    script.echo "mavenFlow ${arguments}"
+    echo "mavenFlow ${arguments}"
 
     try {
       script.checkout script.scm
@@ -48,7 +48,7 @@ class MavenFlow {
 
       if (!arguments.gitCloneUrl) {
         arguments.gitCloneUrl = doFindGitCloneURL()
-        script.echo "gitCloneUrl now is ${arguments.gitCloneUrl}"
+        echo "gitCloneUrl now is ${arguments.gitCloneUrl}"
       }
 
       if (isCi(arguments)) {
@@ -60,7 +60,7 @@ class MavenFlow {
         ciPipeline(arguments);
       }
 
-      script.echo("Completed")
+      echo("Completed")
       if (arguments.pauseOnSuccess) {
         script.input message: 'The build pod has been paused'
       }
@@ -110,7 +110,7 @@ class MavenFlow {
     }
     String organisation = arguments.getCdOrganisation();
     List<String> cdBranches = arguments.getCdBranches();
-    //script.echo("invoked with organisation " + organisation + " branches " + cdBranches);
+    //echo("invoked with organisation " + organisation + " branches " + cdBranches);
     if (cdBranches != null && cdBranches.size() > 0 && Strings.notEmpty(organisation)) {
       def branch = utils.getBranch()
       if (cdBranches.contains(branch)) {
@@ -120,7 +120,7 @@ class MavenFlow {
           if (info != null) {
             boolean answer = organisation.equals(info.getOrganisation());
             if (!answer) {
-              script.echo("Not a CD pipeline as the organisation is " + info.getOrganisation() + " instead of " + organisation);
+              echo("Not a CD pipeline as the organisation is " + info.getOrganisation() + " instead of " + organisation);
             }
             return answer;
           }
@@ -128,7 +128,7 @@ class MavenFlow {
           warning("No git URL could be found so assuming not a CD pipeline");
         }
       } else {
-        script.echo("branch ${branch} is not in the cdBranches ${cdBranches} so this is a CI pipeline")
+        echo("branch ${branch} is not in the cdBranches ${cdBranches} so this is a CI pipeline")
       }
     } else {
       warning("No cdOrganisation or cdBranches configured so assuming not a CD pipeline");
@@ -156,7 +156,7 @@ class MavenFlow {
  * Implements the CI pipeline
  */
   Boolean ciPipeline(MavenFlowArguments arguments) {
-    script.echo("Performing CI pipeline");
+    echo("Performing CI pipeline");
     //sh("mvn clean install");
     script.sh("mvn clean install");
     return false;
@@ -166,7 +166,7 @@ class MavenFlow {
  * Implements the CD pipeline
  */
   Boolean cdPipeline(MavenFlowArguments arguments) {
-    script.echo("Performing CD pipeline");
+    echo("Performing CD pipeline");
     String gitCloneUrl = arguments.getGitCloneUrl();
     if (Strings.isNullOrBlank(gitCloneUrl)) {
       logError("No gitCloneUrl configured for this pipeline!");
@@ -177,7 +177,7 @@ class MavenFlow {
       String remoteGitCloneUrl = remoteGitCloneUrl(repositoryInfo)
       if (remoteGitCloneUrl != null) {
         script.container("clients") {
-          script.echo "setting remote URL to ${remoteGitCloneUrl}"
+          echo "setting remote URL to ${remoteGitCloneUrl}"
           script.sh("git remote set-url origin " + remoteGitCloneUrl);
         }
       }
@@ -185,7 +185,7 @@ class MavenFlow {
     StageProjectArguments stageProjectArguments = arguments.createStageProjectArguments(repositoryInfo)
     StagedProjectInfo stagedProjectInfo = script.stageProject(stageProjectArguments)
 
-    script.echo "Staging stagedProjectInfo = ${stagedProjectInfo}"
+    echo "Staging stagedProjectInfo = ${stagedProjectInfo}"
 
     ReleaseProjectArguments releaseProjectArguments = arguments.createReleaseProjectArguments(stagedProjectInfo)
     return script.releaseProject(releaseProjectArguments)
@@ -229,8 +229,8 @@ class MavenFlow {
     if (!branch) {
       script.container("clients") {
         try {
-          script.echo("output of git --version: " + script.sh(script: "git --version", returnStdout: true));
-          script.echo("pwd: " + script.sh(script: "pwd", returnStdout: true));
+          echo("output of git --version: " + script.sh(script: "git --version", returnStdout: true));
+          echo("pwd: " + script.sh(script: "pwd", returnStdout: true));
         } catch (e) {
           logError("Failed to invoke git --version: " + e, e);
         }
@@ -264,28 +264,28 @@ class MavenFlow {
           }
         }
       }
-      script.echo "Found branch ${branch}"
+      echo "Found branch ${branch}"
     }
     return branch;
   }
 
 // TODO common stuff
   def logError(Throwable t) {
-    script.echo "ERROR: " + t.getMessage()
-    script.echo JXDSLUtils.getFullStackTrace(t)
+    echo "ERROR: " + t.getMessage()
+    echo JXDSLUtils.getFullStackTrace(t)
   }
 
   def logError(String message) {
-    script.echo "ERROR: " + message
+    echo "ERROR: " + message
   }
 
   def logError(String message, Throwable t) {
-    script.echo "ERROR: " + message + " " + t.getMessage()
-    script.echo JXDSLUtils.getFullStackTrace(t)
+    echo "ERROR: " + message + " " + t.getMessage()
+    echo JXDSLUtils.getFullStackTrace(t)
   }
 
   def warning(String message) {
-    script.echo "WARNING: ${message}"
+    echo "WARNING: ${message}"
   }
 
   def createExtensionFunction(StepExtension extension) {

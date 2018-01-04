@@ -121,7 +121,7 @@ class CommonFunctions {
 
     if (useGitTagForNextVersion) {
       def newVersion = getNewVersionFromTag(currentVersion)
-      script.echo "New release version ${newVersion}"
+      echo "New release version ${newVersion}"
       script.container(containerName) {
         script.sh "mvn -B -U versions:set -DnewVersion=${newVersion} " + mvnExtraArgs
       }
@@ -161,28 +161,28 @@ class CommonFunctions {
     def tag = script.readFile 'version.tmp'
 
     if (tag == null || tag.size() == 0) {
-      script.echo "no existing tag found using version ${version}"
+      echo "no existing tag found using version ${version}"
       return version
     }
 
     tag = tag.trim()
 
-    script.echo "Testing to see if version ${tag} is semver compatible"
+    echo "Testing to see if version ${tag} is semver compatible"
 
     def semver = tag =~ /(?i)\bv?(?<major>0|[1-9]\d*)(?:\.(?<minor>0|[1-9]\d*)(?:\.(?<patch>0|[1-9]\d*))?)?(?:-(?<prerelease>[\da-z\-]+(?:\.[\da-z\-]+)*))?(?:\+(?<build>[\da-z\-]+(?:\.[\da-z\-]+)*))?\b/
 
     if (semver.matches()) {
-      script.echo "Version ${tag} is semver compatible"
+      echo "Version ${tag} is semver compatible"
 
       def majorVersion = semver.group('major') as int
       def minorVersion = (semver.group('minor') ?: 0) as int
       def patchVersion = ((semver.group('patch') ?: 0) as int) + 1
 
-      script.echo "Testing to see if current POM version ${pomVersion} is semver compatible"
+      echo "Testing to see if current POM version ${pomVersion} is semver compatible"
 
       def pomSemver = pomVersion.trim() =~ /(?i)\bv?(?<major>0|[1-9]\d*)(?:\.(?<minor>0|[1-9]\d*)(?:\.(?<patch>0|[1-9]\d*))?)?(?:-(?<prerelease>[\da-z\-]+(?:\.[\da-z\-]+)*))?(?:\+(?<build>[\da-z\-]+(?:\.[\da-z\-]+)*))?\b/
       if (pomSemver.matches()) {
-        script.echo "Current POM version ${pomVersion} is semver compatible"
+        echo "Current POM version ${pomVersion} is semver compatible"
 
         def pomMajorVersion = pomSemver.group('major') as int
         def pomMinorVersion = (pomSemver.group('minor') ?: 0) as int
@@ -200,14 +200,14 @@ class CommonFunctions {
       }
 
       def newVersion = "${majorVersion}.${minorVersion}.${patchVersion}"
-      script.echo "New version is ${newVersion}"
+      echo "New version is ${newVersion}"
       return newVersion
     } else {
-      script.echo "Version is not semver compatible"
+      echo "Version is not semver compatible"
 
       // strip the v prefix from the tag so we can use in a maven version number
       def previousReleaseVersion = tag.substring(tag.lastIndexOf('v') + 1)
-      script.echo "Previous version found ${previousReleaseVersion}"
+      echo "Previous version found ${previousReleaseVersion}"
 
       // if there's an int as the version then turn it into a major.minor.micro version
       if (previousReleaseVersion.isNumber()) {
@@ -237,7 +237,7 @@ class CommonFunctions {
   }
 
   def dropStagingRepo(String repoId) {
-    script.echo "Not a release so dropping staging repo ${repoId}"
+    echo "Not a release so dropping staging repo ${repoId}"
     script.sh "mvn org.sonatype.plugins:nexus-staging-maven-plugin:1.6.5:rc-drop -DserverId=oss-sonatype-staging -DnexusUrl=https://oss.sonatype.org -DstagingRepositoryId=${repoId} -Ddescription=\"Dry run\" -DstagingProgressTimeoutMinutes=60"
   }
 
@@ -292,7 +292,7 @@ class CommonFunctions {
     def oldVersion = getOldVersion()
 
     if (oldVersion == null) {
-      script.echo "No previous version found"
+      echo "No previous version found"
       return
     }
 
@@ -311,7 +311,7 @@ class CommonFunctions {
   def createPullRequest(String message, String project, String branch) {
     def githubToken = getGitHubToken()
     def apiUrl = new URL("https://api.github.com/repos/${project}/pulls")
-    script.echo "creating PR for ${apiUrl}"
+    echo "creating PR for ${apiUrl}"
     try {
       HttpURLConnection connection = apiUrl.openConnection()
       if (githubToken.length() > 0) {
@@ -328,7 +328,7 @@ class CommonFunctions {
       "base": "master"
     }
     """
-      script.echo "sending body: ${body}\n"
+      echo "sending body: ${body}\n"
 
       OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())
       writer.write(body)
@@ -339,7 +339,7 @@ class CommonFunctions {
 
       connection.disconnect()
 
-      script.echo "Received PR id:  ${rs.number}"
+      echo "Received PR id:  ${rs.number}"
       return rs.number + ''
 
     } catch (err) {
@@ -350,7 +350,7 @@ class CommonFunctions {
   def closePR(project, id, newVersion, newPRID) {
     def githubToken = getGitHubToken()
     def apiUrl = new URL("https://api.github.com/repos/${project}/pulls/${id}")
-    script.echo "deleting PR for ${apiUrl}"
+    echo "deleting PR for ${apiUrl}"
 
     HttpURLConnection connection = apiUrl.openConnection()
     if (githubToken.length() > 0) {
@@ -367,7 +367,7 @@ class CommonFunctions {
       "body": "Superseded by new version ${newVersion} #${newPRID}"
     }
     """
-    script.echo "sending body: ${body}\n"
+    echo "sending body: ${body}\n"
 
     OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())
     writer.write(body)
@@ -382,7 +382,7 @@ class CommonFunctions {
       script.error "${project} PR ${id} not merged.  ${connection.getResponseMessage()}"
 
     } else {
-      script.echo "${project} PR ${id} ${rs.message}"
+      echo "${project} PR ${id} ${rs.message}"
     }
     connection.disconnect()
   }
@@ -392,7 +392,7 @@ class CommonFunctions {
       githubToken = getGitHubToken()
     }
     def apiUrl = new URL("https://api.github.com/repos/${project}/issues/${id}/comments")
-    script.echo "getting comments for ${apiUrl}"
+    echo "getting comments for ${apiUrl}"
 
     def HttpURLConnection connection = apiUrl.openConnection()
     if (githubToken != null && githubToken.length() > 0) {
@@ -409,7 +409,7 @@ class CommonFunctions {
     try {
       code = connection.getResponseCode()
       // } catch (org.jenkinsci.plugins.scriptsecurity.sandbox.RejectedAccessException ex){
-      //     script.echo "${ex} will try to continue"
+      //     echo "${ex} will try to continue"
     } finally {
       connection.disconnect()
     }
@@ -444,19 +444,19 @@ class CommonFunctions {
 
         code = connection.getResponseCode()
       } catch (err) {
-        script.echo "CI checks have not passed yet so waiting before merging"
+        echo "CI checks have not passed yet so waiting before merging"
       } finally {
         connection.disconnect()
       }
 
       if (rs == null) {
-        script.echo "Error getting commit status, are CI builds enabled for this PR?"
+        echo "Error getting commit status, are CI builds enabled for this PR?"
         return false
       }
       if (rs != null && rs.state == 'success') {
         return true
       } else {
-        script.echo "Commit status is ${rs.state}.  Waiting to merge"
+        echo "Commit status is ${rs.state}.  Waiting to merge"
         return false
       }
     }
@@ -476,10 +476,10 @@ class CommonFunctions {
     try {
       def rs = new JsonSlurper().parse(new InputStreamReader(connection.getInputStream(), "UTF-8"))
       def branch = rs.head.ref
-      script.echo "${branch}"
+      echo "${branch}"
       return branch
     } catch (err) {
-      script.echo "Error while fetching the github branch"
+      echo "Error while fetching the github branch"
     } finally {
       if (connection) {
         connection.disconnect()
@@ -516,7 +516,7 @@ class CommonFunctions {
           script.error "${project} PR ${id} not merged.  GitHub API Response code: ${code}"
         }
       } else {
-        script.echo "${project} PR ${id} ${rs.message}"
+        echo "${project} PR ${id} ${rs.message}"
       }
     } catch (err) {
       // if merge failed try to squash and merge
@@ -561,7 +561,7 @@ class CommonFunctions {
           script.error "${project} PR ${id} not merged.  GitHub API Response code: ${code}"
         }
       } else {
-        script.echo "${project} PR ${id} ${rs.message}"
+        echo "${project} PR ${id} ${rs.message}"
       }
     } finally {
       connection.disconnect()
@@ -573,7 +573,7 @@ class CommonFunctions {
   def addCommentToPullRequest(comment, pr, project) {
     def githubToken = getGitHubToken()
     def apiUrl = new URL("https://api.github.com/repos/${project}/issues/${pr}/comments")
-    script.echo "adding ${comment} to ${apiUrl}"
+    echo "adding ${comment} to ${apiUrl}"
     try {
       def HttpURLConnection connection = apiUrl.openConnection()
       if (githubToken.length() > 0) {
@@ -601,7 +601,7 @@ class CommonFunctions {
   def addMergeCommentToPullRequest(String pr, String project) {
     def githubToken = getGitHubToken()
     def apiUrl = new URL("https://api.github.com/repos/${project}/issues/${pr}/comments")
-    script.echo "merge PR using comment sent to ${apiUrl}"
+    echo "merge PR using comment sent to ${apiUrl}"
     try {
       def HttpURLConnection connection = apiUrl.openConnection()
       if (githubToken.length() > 0) {
@@ -652,7 +652,7 @@ class CommonFunctions {
       githubToken = getGitHubToken()
 
       if (!githubToken) {
-        script.echo "No GitHub api key found so trying annonynous GitHub api call"
+        echo "No GitHub api key found so trying annonynous GitHub api call"
       }
     }
     if (!project) {
@@ -663,7 +663,7 @@ class CommonFunctions {
     if (!changeAuthor) {
       script.error "No commit author found.  Is this a pull request pipeline?"
     }
-    script.echo "Checking if user ${changeAuthor} is a collaborator on ${project}"
+    echo "Checking if user ${changeAuthor} is a collaborator on ${project}"
 
     def apiUrl = new URL("https://api.github.com/repos/${project}/collaborators/${changeAuthor}")
 
@@ -693,7 +693,7 @@ class CommonFunctions {
     def url = new URL(urlString)
     def scan
     def response
-    script.echo "getting string from URL: ${url}"
+    echo "getting string from URL: ${url}"
     try {
       scan = new Scanner(url.openStream(), "UTF-8")
       response = scan.useDelimiter("\\A").next()
@@ -710,7 +710,7 @@ class CommonFunctions {
     def branch
     HttpURLConnection connection
     OutputStreamWriter writer
-    script.echo "closing PR ${apiUrl}"
+    echo "closing PR ${apiUrl}"
 
     try {
       connection = apiUrl.openConnection()
@@ -820,14 +820,14 @@ class CommonFunctions {
         def contents = script.readFile(openshiftYaml[0].path)
         if (contents != null) {
           if (contents.contains('kind: "ImageStream"') || contents.contains('kind: ImageStream') || contents.contains('kind: \'ImageStream\'')) {
-            script.echo "OpenShift YAML contains an ImageStream"
+            echo "OpenShift YAML contains an ImageStream"
             return true
           } else {
-            script.echo "OpenShift YAML does not contain an ImageStream so not using S2I binary mode"
+            echo "OpenShift YAML does not contain an ImageStream so not using S2I binary mode"
           }
         }
       } else {
-        script.echo "Warning OpenShift YAML ${openshiftYaml} does not exist!"
+        echo "Warning OpenShift YAML ${openshiftYaml} does not exist!"
       }
     } catch (e) {
       script.error "Failed to load ${openshiftYaml[0]} due to ${e}"
@@ -856,19 +856,19 @@ class CommonFunctions {
       try {
         def result = script.sh(returnStdout: true, script: 'oc describe is ${name} --namespace openshift')
         if (result && result.contains(name)) {
-          script.echo "ImageStream  ${name} is already installed globally"
+          echo "ImageStream  ${name} is already installed globally"
           return true;
         } else {
           //see if its already in our namespace
           def namespace = script.getProperty('kubernetes').getNamespace();
           result = script.sh(returnStdout: true, script: 'oc describe is ${name} --namespace ${namespace}')
           if (result && result.contains(name)) {
-            script.echo "ImageStream  ${name} is already installed in project ${namespace}"
+            echo "ImageStream  ${name} is already installed in project ${namespace}"
             return true;
           }
         }
       } catch (e) {
-        script.echo "Warning: ${e} "
+        echo "Warning: ${e} "
       }
     }
     return false;
@@ -876,14 +876,14 @@ class CommonFunctions {
 
   def openShiftImageStreamInstall(String name, String location) {
     if (openShiftImageStreamExists(name)) {
-      script.echo "ImageStream ${name} does not exist - installing ..."
+      echo "ImageStream ${name} does not exist - installing ..."
       try {
         def result = script.sh(returnStdout: true, script: 'oc create -f  ${location}')
         def namespace = script.getProperty('kubernetes').getNamespace();
-        script.echo "ImageStream ${name} now installed in project ${namespace}"
+        echo "ImageStream ${name} now installed in project ${namespace}"
         return true;
       } catch (e) {
-        script.echo "Warning: ${e} "
+        echo "Warning: ${e} "
       }
     }
     return false;
@@ -901,7 +901,7 @@ class CommonFunctions {
   def dockerRegistryHostAndPort(String defaultRegistryHost = "fabric8-docker-registry") {
     def registryHost = script.getProperty('env').FABRIC8_DOCKER_REGISTRY_SERVICE_HOST
     if (!registryHost) {
-      script.echo "WARNING you don't seem to be running the fabric8-docker-registry service!!!"
+      echo "WARNING you don't seem to be running the fabric8-docker-registry service!!!"
       registryHost = defaultRegistryHost
     }
     def registryPort = script.getProperty('env').FABRIC8_DOCKER_REGISTRY_SERVICE_PORT
@@ -916,7 +916,7 @@ class CommonFunctions {
       room = "release"
     }
     // TODO call hubotSend now
-    script.echo "CHAT: ${room}: ${message}"
+    echo "CHAT: ${room}: ${message}"
   }
 
 /** Invokes a step extension on the given closure body */
@@ -925,22 +925,22 @@ class CommonFunctions {
       stepExtension = new StepExtension()
     }
     if (stepExtension.preBlock instanceof Closure) {
-      script.echo "StepExtension invoking pre steps"
+      echo "StepExtension invoking pre steps"
       invokeStepBlock(stepExtension.preBlock)
     }
     def answer
     if (stepExtension.stepsBlock instanceof Closure) {
-      script.echo "StepExtension invoking replacement steps"
+      echo "StepExtension invoking replacement steps"
       answer = invokeStepBlock(stepExtension.stepsBlock)
     } else if (body != null) {
       if (stepExtension.disabled) {
-        script.echo "StepExtension has disabled the steps"
+        echo "StepExtension has disabled the steps"
       } else {
         answer = body()
       }
     }
     if (stepExtension.postBlock instanceof Closure) {
-      script.echo "StepExtension invoking post steps"
+      echo "StepExtension invoking post steps"
       invokeStepBlock(stepExtension.postBlock)
     }
     return answer

@@ -43,6 +43,11 @@ class JXDSLUtils {
         return listener
     }
 
+    @Whitelisted
+    static void echo(String msg) {
+        getListener().getLogger().println(msg)
+    }
+
     /**
      * Deletes the given namespace if it exists
      *

@@ -19,7 +19,7 @@ class ReleaseProject {
   }
 
   def call(ReleaseProjectArguments arguments) {
-    script.echo "releaseProject ${arguments}"
+    echo "releaseProject ${arguments}"
 
     def flow = new CommonFunctions(script)
 

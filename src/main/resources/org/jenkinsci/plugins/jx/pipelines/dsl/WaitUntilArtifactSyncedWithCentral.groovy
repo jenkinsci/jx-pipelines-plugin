@@ -24,7 +24,7 @@ class WaitUntilArtifactSyncedWithCentral {
 
     return flow.doStepExecution(config.stepExtension) {
       if (groupId && artifactId && version) {
-        script.echo "waiting for artifact ${groupId}/${artifactId}/${version}/${ext} to be in repo ${repo}"
+        echo "waiting for artifact ${groupId}/${artifactId}/${version}/${ext} to be in repo ${repo}"
 
         script.waitUntil {
           script.retry(3) {
@@ -34,7 +34,7 @@ class WaitUntilArtifactSyncedWithCentral {
 
         flow.sendChat "${config.artifactId} ${config.version} released and available in maven central"
       } else {
-        script.echo "required properties missing groupId: ${groupId}, artifactId: ${artifactId}, version: ${version}"
+        echo "required properties missing groupId: ${groupId}, artifactId: ${artifactId}, version: ${version}"
       }
     }
   }

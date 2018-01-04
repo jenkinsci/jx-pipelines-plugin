@@ -24,7 +24,7 @@ class PromoteArtifacts {
           script.sh 'chmod 600 /root/.ssh-git/ssh-key.pub'
           script.sh 'chmod 700 /root/.ssh-git'
 
-          script.echo "About to release ${name} repo ids ${repoIds}"
+          echo "About to release ${name} repo ids ${repoIds}"
           for (int j = 0; j < repoIds.size(); j++) {
             flow.releaseSonartypeRepo(repoIds[j])
           }
