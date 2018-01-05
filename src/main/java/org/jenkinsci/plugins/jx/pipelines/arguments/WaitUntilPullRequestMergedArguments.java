@@ -16,8 +16,12 @@
  */
 package org.jenkinsci.plugins.jx.pipelines.arguments;
 
+import hudson.Extension;
 import io.jenkins.functions.Argument;
+import org.jenkinsci.Symbol;
 import org.jenkinsci.plugins.jx.pipelines.StepExtension;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Positive;
@@ -25,7 +29,7 @@ import java.io.Serializable;
 
 /**
  */
-public class WaitUntilPullRequestMergedArguments implements Serializable {
+public class WaitUntilPullRequestMergedArguments extends JXPipelinesArguments<WaitUntilPullRequestMergedArguments> {
     private static final long serialVersionUID = 1L;
 
     @Argument
@@ -37,6 +41,7 @@ public class WaitUntilPullRequestMergedArguments implements Serializable {
 
     private StepExtension stepExtension;
 
+    @DataBoundConstructor
     public WaitUntilPullRequestMergedArguments() {
     }
 
@@ -58,6 +63,7 @@ public class WaitUntilPullRequestMergedArguments implements Serializable {
         return id;
     }
 
+    @DataBoundSetter
     public void setId(int id) {
         this.id = id;
     }
@@ -66,6 +72,7 @@ public class WaitUntilPullRequestMergedArguments implements Serializable {
         return project;
     }
 
+    @DataBoundSetter
     public void setProject(String project) {
         this.project = project;
     }
@@ -74,7 +81,13 @@ public class WaitUntilPullRequestMergedArguments implements Serializable {
         return stepExtension;
     }
 
+    @DataBoundSetter
     public void setStepExtension(StepExtension stepExtension) {
         this.stepExtension = stepExtension;
+    }
+
+    @Extension @Symbol("waitUntilPullRequestMerged")
+    public static class DescriptorImpl extends JXPipelinesArgumentsDescriptor<WaitUntilPullRequestMergedArguments> {
+
     }
 }

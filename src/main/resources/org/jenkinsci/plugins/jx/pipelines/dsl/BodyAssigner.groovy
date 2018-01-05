@@ -1,9 +1,13 @@
 package org.jenkinsci.plugins.jx.pipelines.dsl
 
-class BodyAssigner implements MethodMissingWrapper, Serializable {
-    private Map config
+import org.jenkinsci.plugins.jx.pipelines.arguments.JXPipelinesArguments
+import org.jenkinsci.plugins.jx.pipelines.helpers.ConfigHelper
 
-    BodyAssigner(Map config) {
+class BodyAssigner implements MethodMissingWrapper, Serializable {
+    private Map<String,List> config
+    private Map<String,?> populatedMap = [:]
+
+    BodyAssigner(Map<String,List> config) {
         this.config = config
     }
 
@@ -15,6 +19,15 @@ class BodyAssigner implements MethodMissingWrapper, Serializable {
             argValue = args[0]
         }
 
-        config[methodName].call(argValue)
+
+        def fieldName = config[methodName]?.get(0)
+        def fieldClosure = config[methodName]?.get(1)
+        if (fieldName != null && fieldClosure != null) {
+            populatedMap[fieldName] = fieldClosure.call(argValue)
+        }
+    }
+
+    protected <A extends JXPipelinesArguments> A argumentInstance(Class<A> klazz) {
+        return ConfigHelper.populateBeanFromConfiguration(klazz, populatedMap)
     }
 }

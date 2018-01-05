@@ -16,13 +16,17 @@
  */
 package org.jenkinsci.plugins.jx.pipelines.arguments;
 
+import hudson.Extension;
 import io.jenkins.functions.Argument;
+import org.jenkinsci.Symbol;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 
 import java.io.Serializable;
 
 /**
  */
-public class ContentRepositoryArguments implements Serializable {
+public class ContentRepositoryArguments extends JXPipelinesArguments<ContentRepositoryArguments> {
     private static final long serialVersionUID = 1L;
 
     @Argument
@@ -30,6 +34,7 @@ public class ContentRepositoryArguments implements Serializable {
     @Argument
     private boolean useContentRepository = true;
 
+    @DataBoundConstructor
     public ContentRepositoryArguments() {
     }
 
@@ -42,6 +47,7 @@ public class ContentRepositoryArguments implements Serializable {
         return serviceName;
     }
 
+    @DataBoundSetter
     public void setServiceName(String serviceName) {
         this.serviceName = serviceName;
     }
@@ -50,7 +56,13 @@ public class ContentRepositoryArguments implements Serializable {
         return useContentRepository;
     }
 
+    @DataBoundSetter
     public void setUseContentRepository(boolean useContentRepository) {
         this.useContentRepository = useContentRepository;
+    }
+
+    @Extension @Symbol("contentRepository")
+    public static class DescriptorImpl extends JXPipelinesArgumentsDescriptor<ContentRepositoryArguments> {
+
     }
 }

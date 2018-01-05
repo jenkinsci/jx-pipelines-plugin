@@ -3,6 +3,8 @@ package org.jenkinsci.plugins.jx.pipelines.dsl
 import org.jenkinsci.plugins.jx.pipelines.arguments.PromoteArtifactsArguments
 import org.jenkinsci.plugins.workflow.cps.CpsScript
 
+import static org.jenkinsci.plugins.jx.pipelines.dsl.JXDSLUtils.echo
+
 class PromoteArtifacts {
   private CpsScript script
 
@@ -24,7 +26,7 @@ class PromoteArtifacts {
           script.sh 'chmod 600 /root/.ssh-git/ssh-key.pub'
           script.sh 'chmod 700 /root/.ssh-git'
 
-          script.echo "About to release ${name} repo ids ${repoIds}"
+          echo "About to release ${name} repo ids ${repoIds}"
           for (int j = 0; j < repoIds.size(); j++) {
             flow.releaseSonartypeRepo(repoIds[j])
           }

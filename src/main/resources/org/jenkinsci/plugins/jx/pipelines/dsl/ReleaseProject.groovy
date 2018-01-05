@@ -11,6 +11,8 @@ import org.jenkinsci.plugins.jx.pipelines.arguments.WaitUntilPullRequestMergedAr
 import org.jenkinsci.plugins.jx.pipelines.model.ServiceConstants
 import org.jenkinsci.plugins.workflow.cps.CpsScript
 
+import static org.jenkinsci.plugins.jx.pipelines.dsl.JXDSLUtils.echo
+
 class ReleaseProject {
   private CpsScript script
 
@@ -19,7 +21,7 @@ class ReleaseProject {
   }
 
   def call(ReleaseProjectArguments arguments) {
-    script.echo "releaseProject ${arguments}"
+    echo "releaseProject ${arguments}"
 
     def flow = new CommonFunctions(script)
 

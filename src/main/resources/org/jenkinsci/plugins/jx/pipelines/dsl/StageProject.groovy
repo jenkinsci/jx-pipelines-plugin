@@ -6,6 +6,8 @@ import org.jenkinsci.plugins.jx.pipelines.helpers.MavenHelpers
 import org.jenkinsci.plugins.jx.pipelines.model.StagedProjectInfo
 import org.jenkinsci.plugins.workflow.cps.CpsScript
 
+import static org.jenkinsci.plugins.jx.pipelines.dsl.JXDSLUtils.echo
+
 class StageProject {
   private CpsScript script
 
@@ -14,7 +16,7 @@ class StageProject {
   }
 
   def call(StageProjectArguments arguments) {
-    script.echo "stageProject ${arguments}"
+    echo "stageProject ${arguments}"
 
 
     def project = arguments.project
@@ -39,10 +41,10 @@ class StageProject {
 
     def repoIds = []
     if (useStaging) {
-      script.echo "using staging to the repository: ${serverId} at ${nexusUrl}"
+      echo "using staging to the repository: ${serverId} at ${nexusUrl}"
       repoIds = stageSonartypeRepo(flow, serverId, nexusUrl, containerName, mavenProfiles)
     } else {
-      script.echo "deploying to local artifact-repository"
+      echo "deploying to local artifact-repository"
       mavenDeploy(skipTests, containerName, mavenProfiles)
     }
 
@@ -97,7 +99,7 @@ class StageProject {
 
       def mvnProfileArg = MavenHelpers.mavenProfileCliArgument(mavenProfiles, "release", "openshift")
 
-      script.echo "using docker registry: ${registryHost}, serverId: ${serverId}, nexusUrl: ${nexusUrl} and container: ${containerName}"
+      echo "using docker registry: ${registryHost}, serverId: ${serverId}, nexusUrl: ${nexusUrl} and container: ${containerName}"
 
       String mvnArgs = ""
       if (serverId) {
@@ -158,7 +160,7 @@ class StageProject {
         }
       } else {
         def newVersion = newVersionUsingSemVer(flow, clientsContainerName)
-        script.echo "New release version ${newVersion}"
+        echo "New release version ${newVersion}"
         script.container(containerName) {
           script.sh "mvn -B -U versions:set -DnewVersion=${newVersion} " + mvnExtraArgs
         }
@@ -190,7 +192,7 @@ class StageProject {
 
 
   def warning(String message) {
-    println "WARNING: ${message}"
+    echo "WARNING: ${message}"
   }
 
 /**

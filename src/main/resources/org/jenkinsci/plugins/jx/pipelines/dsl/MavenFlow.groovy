@@ -1,21 +1,21 @@
 package org.jenkinsci.plugins.jx.pipelines.dsl
 
-import com.cloudbees.groovy.cps.NonCPS
 import io.fabric8.utils.Strings
-import org.apache.commons.beanutils.PropertyUtils
 import org.jenkinsci.plugins.jx.pipelines.FailedBuildException
 import org.jenkinsci.plugins.jx.pipelines.ShellFacade
 import org.jenkinsci.plugins.jx.pipelines.StepExtension
 import org.jenkinsci.plugins.jx.pipelines.Utils
+import org.jenkinsci.plugins.jx.pipelines.arguments.JXPipelinesArguments
 import org.jenkinsci.plugins.jx.pipelines.arguments.MavenFlowArguments
 import org.jenkinsci.plugins.jx.pipelines.arguments.ReleaseProjectArguments
 import org.jenkinsci.plugins.jx.pipelines.arguments.StageProjectArguments
+import org.jenkinsci.plugins.jx.pipelines.helpers.ConfigHelper
 import org.jenkinsci.plugins.jx.pipelines.helpers.GitHelper
 import org.jenkinsci.plugins.jx.pipelines.helpers.GitRepositoryInfo
 import org.jenkinsci.plugins.jx.pipelines.model.StagedProjectInfo
 import org.jenkinsci.plugins.workflow.cps.CpsScript
 
-import java.beans.PropertyDescriptor
+import static org.jenkinsci.plugins.jx.pipelines.dsl.JXDSLUtils.echo
 
 class MavenFlow {
   private CpsScript script
@@ -36,9 +36,10 @@ class MavenFlow {
       body.delegate = bodyBlock
       body.resolveStrategy = Closure.DELEGATE_ONLY
       body.call()
+      arguments = bodyBlock.argumentInstance(MavenFlowArguments.class)
     }
 
-    script.echo "mavenFlow ${arguments}"
+    echo "mavenFlow ${arguments}"
 
     try {
       script.checkout script.scm
@@ -49,7 +50,7 @@ class MavenFlow {
 
       if (!arguments.gitCloneUrl) {
         arguments.gitCloneUrl = doFindGitCloneURL()
-        println "gitCloneUrl now is ${arguments.gitCloneUrl}"
+        echo "gitCloneUrl now is ${arguments.gitCloneUrl}"
       }
 
       if (isCi(arguments)) {
@@ -61,7 +62,7 @@ class MavenFlow {
         ciPipeline(arguments);
       }
 
-      println("Completed")
+      echo("Completed")
       if (arguments.pauseOnSuccess) {
         script.input message: 'The build pod has been paused'
       }
@@ -111,7 +112,7 @@ class MavenFlow {
     }
     String organisation = arguments.getCdOrganisation();
     List<String> cdBranches = arguments.getCdBranches();
-    //println("invoked with organisation " + organisation + " branches " + cdBranches);
+    //echo("invoked with organisation " + organisation + " branches " + cdBranches);
     if (cdBranches != null && cdBranches.size() > 0 && Strings.notEmpty(organisation)) {
       def branch = utils.getBranch()
       if (cdBranches.contains(branch)) {
@@ -121,7 +122,7 @@ class MavenFlow {
           if (info != null) {
             boolean answer = organisation.equals(info.getOrganisation());
             if (!answer) {
-              println("Not a CD pipeline as the organisation is " + info.getOrganisation() + " instead of " + organisation);
+              echo("Not a CD pipeline as the organisation is " + info.getOrganisation() + " instead of " + organisation);
             }
             return answer;
           }
@@ -129,7 +130,7 @@ class MavenFlow {
           warning("No git URL could be found so assuming not a CD pipeline");
         }
       } else {
-        println("branch ${branch} is not in the cdBranches ${cdBranches} so this is a CI pipeline")
+        echo("branch ${branch} is not in the cdBranches ${cdBranches} so this is a CI pipeline")
       }
     } else {
       warning("No cdOrganisation or cdBranches configured so assuming not a CD pipeline");
@@ -157,7 +158,7 @@ class MavenFlow {
  * Implements the CI pipeline
  */
   Boolean ciPipeline(MavenFlowArguments arguments) {
-    println("Performing CI pipeline");
+    echo("Performing CI pipeline");
     //sh("mvn clean install");
     script.sh("mvn clean install");
     return false;
@@ -167,7 +168,7 @@ class MavenFlow {
  * Implements the CD pipeline
  */
   Boolean cdPipeline(MavenFlowArguments arguments) {
-    println("Performing CD pipeline");
+    echo("Performing CD pipeline");
     String gitCloneUrl = arguments.getGitCloneUrl();
     if (Strings.isNullOrBlank(gitCloneUrl)) {
       logError("No gitCloneUrl configured for this pipeline!");
@@ -178,18 +179,18 @@ class MavenFlow {
       String remoteGitCloneUrl = remoteGitCloneUrl(repositoryInfo)
       if (remoteGitCloneUrl != null) {
         script.container("clients") {
-          println "setting remote URL to ${remoteGitCloneUrl}"
+          echo "setting remote URL to ${remoteGitCloneUrl}"
           script.sh("git remote set-url origin " + remoteGitCloneUrl);
         }
       }
     }
     StageProjectArguments stageProjectArguments = arguments.createStageProjectArguments(repositoryInfo)
-    StagedProjectInfo stagedProjectInfo = stageProject(stageProjectArguments)
+    StagedProjectInfo stagedProjectInfo = script.stageProject(stageProjectArguments)
 
-    println "Staging stagedProjectInfo = ${stagedProjectInfo}"
+    echo "Staging stagedProjectInfo = ${stagedProjectInfo}"
 
     ReleaseProjectArguments releaseProjectArguments = arguments.createReleaseProjectArguments(stagedProjectInfo)
-    return releaseProject(releaseProjectArguments)
+    return script.releaseProject(releaseProjectArguments)
   }
 
   String remoteGitCloneUrl(GitRepositoryInfo info) {
@@ -200,7 +201,7 @@ class MavenFlow {
   }
 
   String doFindGitCloneURL() {
-    String text = getGitConfigFile(new File(pwd()));
+    String text = getGitConfigFile(script.pwd());
     if (Strings.isNullOrBlank(text)) {
       text = script.readFile(".git/config");
     }
@@ -211,18 +212,16 @@ class MavenFlow {
   }
 
 
-  String getGitConfigFile(File dir) {
-    String path = new File(dir, ".git/config").getAbsolutePath();
-    String text = script.readFile(path);
+  String getGitConfigFile(String dir) {
+    String text = script.readFile("${dir}/.git/config");
     if (text != null) {
       text = text.trim();
       if (text.length() > 0) {
         return text;
       }
     }
-    File file = dir.getParentFile();
-    if (file != null) {
-      return getGitConfigFile(file);
+    if (script.fileExists("${dir}/..")) {
+      return getGitConfigFile("${dir}/..");
     }
     return null;
   }
@@ -232,8 +231,8 @@ class MavenFlow {
     if (!branch) {
       script.container("clients") {
         try {
-          script.echo("output of git --version: " + script.sh(script: "git --version", returnStdout: true));
-          script.echo("pwd: " + script.sh(script: "pwd", returnStdout: true));
+          echo("output of git --version: " + script.sh(script: "git --version", returnStdout: true));
+          echo("pwd: " + script.sh(script: "pwd", returnStdout: true));
         } catch (e) {
           logError("Failed to invoke git --version: " + e, e);
         }
@@ -267,31 +266,30 @@ class MavenFlow {
           }
         }
       }
-      script.echo "Found branch ${branch}"
+      echo "Found branch ${branch}"
     }
     return branch;
   }
 
 // TODO common stuff
   def logError(Throwable t) {
-    println "ERROR: " + t.getMessage()
-    t.printStackTrace()
+    echo "ERROR: " + t.getMessage()
+    echo JXDSLUtils.getFullStackTrace(t)
   }
 
   def logError(String message) {
-    println "ERROR: " + message
+    echo "ERROR: " + message
   }
 
   def logError(String message, Throwable t) {
-    println "ERROR: " + message + " " + t.getMessage()
-    t.printStackTrace()
+    echo "ERROR: " + message + " " + t.getMessage()
+    echo JXDSLUtils.getFullStackTrace(t)
   }
 
   def warning(String message) {
-    println "WARNING: ${message}"
+    echo "WARNING: ${message}"
   }
 
-  @NonCPS
   def createExtensionFunction(StepExtension extension) {
     return { stepBody ->
       stepBody.resolveStrategy = Closure.DELEGATE_FIRST
@@ -300,30 +298,18 @@ class MavenFlow {
     }
   }
 
-  @NonCPS
-  def addPropertyFunctions(Map config, Object bean) {
+  def addPropertyFunctions(Map config, JXPipelinesArguments bean) {
     def extensionSuffix = "Extension"
 
-    def descriptors = PropertyUtils.getPropertyDescriptors(bean)
-
-    for (PropertyDescriptor descriptor : descriptors) {
-      def name = descriptor.name
-      if (descriptor.writeMethod != null) {
-        def kind = descriptor.propertyType
-        if (StepExtension.class.isAssignableFrom(kind) || StepExtension.class.equals(kind)) {
-          def key = name
-          if (key.endsWith(extensionSuffix)) {
-            key = key.substring(0, key.length() - extensionSuffix.length())
-          }
-          def extension = PropertyUtils.getProperty(bean, name)
-          if (extension == null) {
-            extension = new StepExtension()
-            PropertyUtils.setProperty(bean, name, extension)
-          }
-          config[key] = createExtensionFunction(extension)
-        } else {
-          config[name] = { value -> PropertyUtils.setProperty(bean, name, value) }
+    ConfigHelper.getArgumentFields((Class<? extends JXPipelinesArguments>)bean.getClass()).each { n, k ->
+      if (StepExtension.class.isAssignableFrom(k) || StepExtension.class == k) {
+        String extKey = n
+        if (extKey.endsWith(extensionSuffix)) {
+          extKey = extKey.substring(0, extKey.length() - extensionSuffix.length())
         }
+        config[extKey] = [n, createExtensionFunction(new StepExtension())]
+      } else {
+        config[n] = [n, { value -> value }]
       }
     }
   }

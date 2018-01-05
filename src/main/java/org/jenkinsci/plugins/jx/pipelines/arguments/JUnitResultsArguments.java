@@ -16,18 +16,23 @@
  */
 package org.jenkinsci.plugins.jx.pipelines.arguments;
 
+import hudson.Extension;
 import io.jenkins.functions.Argument;
+import org.jenkinsci.Symbol;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 
 import java.io.Serializable;
 
 /**
  */
-public class JUnitResultsArguments implements Serializable {
+public class JUnitResultsArguments extends JXPipelinesArguments<JUnitResultsArguments> {
     private static final long serialVersionUID = 1L;
 
     @Argument
     private boolean archiveTestResults = true;
 
+    @DataBoundConstructor
     public JUnitResultsArguments() {
     }
 
@@ -39,7 +44,13 @@ public class JUnitResultsArguments implements Serializable {
         return archiveTestResults;
     }
 
+    @DataBoundSetter
     public void setArchiveTestResults(boolean archiveTestResults) {
         this.archiveTestResults = archiveTestResults;
+    }
+
+    @Extension @Symbol("junitResults")
+    public static class DescriptorImpl extends JXPipelinesArgumentsDescriptor<JUnitResultsArguments> {
+
     }
 }

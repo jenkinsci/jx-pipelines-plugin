@@ -16,13 +16,17 @@
  */
 package org.jenkinsci.plugins.jx.pipelines.arguments;
 
+import hudson.Extension;
 import io.jenkins.functions.Argument;
+import org.jenkinsci.Symbol;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 
 import java.io.Serializable;
 
 /**
  */
-public class BayesianScannerArguments implements Serializable {
+public class BayesianScannerArguments extends JXPipelinesArguments<BayesianScannerArguments> {
     private static final long serialVersionUID = 1L;
 
     @Argument
@@ -30,6 +34,7 @@ public class BayesianScannerArguments implements Serializable {
     @Argument
     private boolean runBayesianScanner = true;
 
+    @DataBoundConstructor
     public BayesianScannerArguments() {
     }
 
@@ -42,6 +47,7 @@ public class BayesianScannerArguments implements Serializable {
         return serviceName;
     }
 
+    @DataBoundSetter
     public void setServiceName(String serviceName) {
         this.serviceName = serviceName;
     }
@@ -50,7 +56,13 @@ public class BayesianScannerArguments implements Serializable {
         return runBayesianScanner;
     }
 
+    @DataBoundSetter
     public void setRunBayesianScanner(boolean runBayesianScanner) {
         this.runBayesianScanner = runBayesianScanner;
+    }
+
+    @Extension @Symbol("bayesianScanner")
+    public static class DescriptorImpl extends JXPipelinesArgumentsDescriptor<BayesianScannerArguments> {
+
     }
 }

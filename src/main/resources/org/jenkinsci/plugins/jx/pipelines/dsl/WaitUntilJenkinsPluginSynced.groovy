@@ -23,7 +23,7 @@ class WaitUntilJenkinsPluginSynced {
 
     script.waitUntil {
       script.retry(3) {
-        flow.isFileAvailableInRepo(repo, path, config.version, artifact)
+        JXDSLUtils.isFileAvailableInRepo(repo, path, config.version, artifact)
       }
     }
 

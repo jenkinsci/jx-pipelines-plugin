@@ -16,13 +16,17 @@
  */
 package org.jenkinsci.plugins.jx.pipelines.arguments;
 
+import hudson.Extension;
 import io.jenkins.functions.Argument;
+import org.jenkinsci.Symbol;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 
 import java.io.Serializable;
 
 /**
  */
-public class MavenReleaseArguments implements Serializable {
+public class MavenReleaseArguments extends JXPipelinesArguments<MavenReleaseArguments> {
     private static final long serialVersionUID = 1L;
 
     @Argument
@@ -53,6 +57,11 @@ public class MavenReleaseArguments implements Serializable {
 
     @Argument
     private String pomFileName = "";
+
+    @DataBoundConstructor
+    public MavenReleaseArguments() {
+
+    }
 
     // Adapters
     //-------------------------------------------------------------------------
@@ -87,6 +96,7 @@ public class MavenReleaseArguments implements Serializable {
         return skipTests;
     }
 
+    @DataBoundSetter
     public void setSkipTests(boolean skipTests) {
         this.skipTests = skipTests;
     }
@@ -95,6 +105,7 @@ public class MavenReleaseArguments implements Serializable {
         return version;
     }
 
+    @DataBoundSetter
     public void setVersion(String version) {
         this.version = version;
     }
@@ -103,6 +114,7 @@ public class MavenReleaseArguments implements Serializable {
         return enableArchiveTestResults;
     }
 
+    @DataBoundSetter
     public void setEnableArchiveTestResults(boolean enableArchiveTestResults) {
         this.enableArchiveTestResults = enableArchiveTestResults;
     }
@@ -111,6 +123,7 @@ public class MavenReleaseArguments implements Serializable {
         return analyticsServiceName;
     }
 
+    @DataBoundSetter
     public void setAnalyticsServiceName(String analyticsServiceName) {
         this.analyticsServiceName = analyticsServiceName;
     }
@@ -119,6 +132,7 @@ public class MavenReleaseArguments implements Serializable {
         return enableAnalyticsScan;
     }
 
+    @DataBoundSetter
     public void setEnableAnalyticsScan(boolean enableAnalyticsScan) {
         this.enableAnalyticsScan = enableAnalyticsScan;
     }
@@ -127,6 +141,7 @@ public class MavenReleaseArguments implements Serializable {
         return sonarQubeServiceName;
     }
 
+    @DataBoundSetter
     public void setSonarQubeServiceName(String sonarQubeServiceName) {
         this.sonarQubeServiceName = sonarQubeServiceName;
     }
@@ -135,6 +150,7 @@ public class MavenReleaseArguments implements Serializable {
         return sonarQubePort;
     }
 
+    @DataBoundSetter
     public void setSonarQubePort(int sonarQubePort) {
         this.sonarQubePort = sonarQubePort;
     }
@@ -143,6 +159,7 @@ public class MavenReleaseArguments implements Serializable {
         return sonarQubeScannerVersion;
     }
 
+    @DataBoundSetter
     public void setSonarQubeScannerVersion(String sonarQubeScannerVersion) {
         this.sonarQubeScannerVersion = sonarQubeScannerVersion;
     }
@@ -151,6 +168,7 @@ public class MavenReleaseArguments implements Serializable {
         return enableSonarQubeScan;
     }
 
+    @DataBoundSetter
     public void setEnableSonarQubeScan(boolean enableSonarQubeScan) {
         this.enableSonarQubeScan = enableSonarQubeScan;
     }
@@ -159,6 +177,7 @@ public class MavenReleaseArguments implements Serializable {
         return contentRepositoryServiceName;
     }
 
+    @DataBoundSetter
     public void setContentRepositoryServiceName(String contentRepositoryServiceName) {
         this.contentRepositoryServiceName = contentRepositoryServiceName;
     }
@@ -167,6 +186,7 @@ public class MavenReleaseArguments implements Serializable {
         return enableContentRepositorySiteReport;
     }
 
+    @DataBoundSetter
     public void setEnableContentRepositorySiteReport(boolean enableContentRepositorySiteReport) {
         this.enableContentRepositorySiteReport = enableContentRepositorySiteReport;
     }
@@ -175,7 +195,13 @@ public class MavenReleaseArguments implements Serializable {
         return pomFileName;
     }
 
+    @DataBoundSetter
     public void setPomFileName(String pomFileName) {
         this.pomFileName = pomFileName;
+    }
+
+    @Extension @Symbol("mavenRelease")
+    public static class DescriptorImpl extends JXPipelinesArgumentsDescriptor<MavenReleaseArguments> {
+
     }
 }

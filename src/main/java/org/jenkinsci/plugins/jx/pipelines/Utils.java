@@ -80,7 +80,6 @@ public class Utils extends CommandSupport {
         this.branch = null;
     }
 
-    @NonCPS
     public String environmentNamespace(final String environment) {
         KubernetesClient kubernetesClient = createKubernetesClient();
         String answer = Environments.namespaceForEnvironment(kubernetesClient, environment, defaultNamespace(kubernetesClient));
@@ -99,7 +98,6 @@ public class Utils extends CommandSupport {
     /**
      * Loads the environments in the default user namespace
      */
-    @NonCPS
     public Environments environments() {
         KubernetesClient kubernetesClient = createKubernetesClient();
         return Environments.load(kubernetesClient, defaultNamespace(kubernetesClient));
@@ -108,7 +106,6 @@ public class Utils extends CommandSupport {
     /**
      * Loads the environments from the given namespace
      */
-    @NonCPS
     public Environments environments(String namespace) {
         KubernetesClient kubernetesClient = createKubernetesClient();
         return Environments.load(kubernetesClient, namespace);
@@ -117,7 +114,6 @@ public class Utils extends CommandSupport {
     /**
      * Loads the environments from the user namespace
      */
-    @NonCPS
     public PipelineConfiguration pipelineConfiguration() {
         KubernetesClient kubernetesClient = createKubernetesClient();
         return PipelineConfiguration.loadPipelineConfiguration(kubernetesClient, defaultNamespace(kubernetesClient));
@@ -126,7 +122,6 @@ public class Utils extends CommandSupport {
     /**
      * Loads the environments from the given namespace
      */
-    @NonCPS
     public PipelineConfiguration pipelineConfiguration(String namespace) {
         KubernetesClient kubernetesClient = createKubernetesClient();
         return PipelineConfiguration.loadPipelineConfiguration(kubernetesClient, namespace);
@@ -135,7 +130,6 @@ public class Utils extends CommandSupport {
     /**
      * Returns true if the integration tests should be disabled
      */
-    @NonCPS
     public boolean isDisabledITests() {
         boolean answer = false;
         try {
@@ -157,7 +151,6 @@ public class Utils extends CommandSupport {
     /**
      * Returns true if we should use S2I to build docker images
      */
-    @NonCPS
     public boolean isUseOpenShiftS2IForBuilds() {
         return !isUseDockerSocket();
     }
@@ -165,7 +158,6 @@ public class Utils extends CommandSupport {
     /**
      * Returns true if the current cluster can support S2I
      */
-    @NonCPS
     public boolean supportsOpenShiftS2I() {
         OpenShiftClient client = new DefaultOpenShiftClient();
         return client.supportsOpenShiftAPIGroup(OpenShiftAPIGroups.IMAGE);
@@ -174,7 +166,6 @@ public class Utils extends CommandSupport {
     /**
      * Returns true if we should mount the docker socket for docker builds
      */
-    @NonCPS
     public boolean isUseDockerSocket() {
         final PipelineConfiguration config = pipelineConfiguration();
         echo("Loaded PipelineConfiguration " + config);
@@ -186,7 +177,6 @@ public class Utils extends CommandSupport {
         return supportsOpenShiftS2I() ? false : true;
     }
 
-    @NonCPS
     public String getDockerRegistry() {
         String externalDockerRegistryURL = getUsersPipelineConfig("external-docker-registry-url");
         if (Strings.notEmpty(externalDockerRegistryURL)) {
@@ -203,7 +193,6 @@ public class Utils extends CommandSupport {
         return registryHost + ":" + registryPort;
     }
 
-    @NonCPS
     public String getUsersPipelineConfig(final String k) {
         // first lets check if we have the new pipelines configmap in the users home namespace
         KubernetesClient client = new DefaultKubernetesClient();
@@ -222,7 +211,6 @@ public class Utils extends CommandSupport {
         return null;
     }
 
-    @NonCPS
     public String getConfigMap(String ns, final String cm, String key) {
 
         // first lets check if we have the new pipeliens configmap in the users home namespace
@@ -240,7 +228,6 @@ public class Utils extends CommandSupport {
         return null;
     }
 
-    @NonCPS
     private Map<String, String> parseConfigMapData(final String input) {
         final Map<String, String> map = new HashMap<String, String>();
         for (String pair : input.split("\n")) {
@@ -252,13 +239,11 @@ public class Utils extends CommandSupport {
         return map;
     }
 
-    @NonCPS
     public String getImageStreamSha(Object imageStreamName) {
         OpenShiftClient oc = new DefaultOpenShiftClient();
         return findTagSha(oc, (String) imageStreamName, getNamespace());
     }
 
-    @NonCPS
     public String findTagSha(OpenShiftClient client, final String imageStreamName, String namespace) {
         Object currentImageStream = null;
         for (int i = 0; i < 15; i++) {
@@ -319,7 +304,6 @@ public class Utils extends CommandSupport {
         return null;
     }
 
-    @NonCPS
     public String getUsersNamespace() {
         String usersNamespace = getNamespace();
         if (usersNamespace.endsWith("-jenkins")) {

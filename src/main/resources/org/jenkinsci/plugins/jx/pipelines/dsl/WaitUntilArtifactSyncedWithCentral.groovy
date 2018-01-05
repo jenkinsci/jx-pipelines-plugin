@@ -4,6 +4,8 @@ import org.jenkinsci.plugins.jx.pipelines.arguments.WaitUntilArtifactSyncedArgum
 import org.jenkinsci.plugins.jx.pipelines.model.ServiceConstants
 import org.jenkinsci.plugins.workflow.cps.CpsScript
 
+import static org.jenkinsci.plugins.jx.pipelines.dsl.JXDSLUtils.echo
+
 class WaitUntilArtifactSyncedWithCentral {
   private CpsScript script
 
@@ -24,17 +26,17 @@ class WaitUntilArtifactSyncedWithCentral {
 
     return flow.doStepExecution(config.stepExtension) {
       if (groupId && artifactId && version) {
-        script.echo "waiting for artifact ${groupId}/${artifactId}/${version}/${ext} to be in repo ${repo}"
+        echo "waiting for artifact ${groupId}/${artifactId}/${version}/${ext} to be in repo ${repo}"
 
         script.waitUntil {
           script.retry(3) {
-            flow.isArtifactAvailableInRepo(repo, groupId.replaceAll('\\.', '/'), artifactId, version, ext)
+            JXDSLUtils.isArtifactAvailableInRepo(repo, groupId.replaceAll('\\.', '/'), artifactId, version, ext)
           }
         }
 
         flow.sendChat "${config.artifactId} ${config.version} released and available in maven central"
       } else {
-        script.echo "required properties missing groupId: ${groupId}, artifactId: ${artifactId}, version: ${version}"
+        echo "required properties missing groupId: ${groupId}, artifactId: ${artifactId}, version: ${version}"
       }
     }
   }

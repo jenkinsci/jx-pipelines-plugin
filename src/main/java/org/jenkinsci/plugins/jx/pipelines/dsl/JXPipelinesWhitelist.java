@@ -30,58 +30,42 @@ import java.util.Set;
 /**
  */
 public class JXPipelinesWhitelist extends Whitelist {
-    private Set<String> validPackages = new HashSet<>(Arrays.asList(
-            "io.fabric8.utils",
-            "org.apache.maven.model",
-            "org.jenkinsci.plugins.jx.pipelines",
-            "org.jenkinsci.plugins.jx.pipelines.arguments",
-            "org.jenkinsci.plugins.jx.pipelines.helpers",
-            "org.jenkinsci.plugins.jx.pipelines.model"
-    ));
-
     @Override
     public boolean permitsMethod(@Nonnull Method method, @Nonnull Object o, @Nonnull Object[] objects) {
-        boolean permitted = permitClass(method.getDeclaringClass());
-        if (permitted) {
-            return true;
-        }
         return (method.getName().equals("invokeMethod") ||
                 method.getName().equals("setProperty") ||
-                method.getName().equals("getProperty"))
-                && MethodMissingWrapper.class.isAssignableFrom(o.getClass());
+                method.getName().equals("getProperty")) &&
+                // TODO: Get rid of MethodMissingWrapper and the closure translation stuff, probably similar to in Declarative
+                MethodMissingWrapper.class.isAssignableFrom(o.getClass());
     }
 
     @Override
     public boolean permitsConstructor(@Nonnull Constructor<?> constructor, @Nonnull Object[] objects) {
-        return permitClass(constructor.getDeclaringClass());
+        return false;
     }
 
     @Override
     public boolean permitsStaticMethod(@Nonnull Method method, @Nonnull Object[] objects) {
-        return permitClass(method.getDeclaringClass());
+        return false;
     }
 
     @Override
     public boolean permitsFieldGet(@Nonnull Field field, @Nonnull Object o) {
-        return permitClass(field.getDeclaringClass());
+        return false;
     }
 
     @Override
     public boolean permitsFieldSet(@Nonnull Field field, @Nonnull Object o, @CheckForNull Object o1) {
-        return permitClass(field.getDeclaringClass());
+        return false;
     }
 
     @Override
     public boolean permitsStaticFieldGet(@Nonnull Field field) {
-        return permitClass(field.getDeclaringClass());
+        return false;
     }
 
     @Override
     public boolean permitsStaticFieldSet(@Nonnull Field field, @CheckForNull Object o) {
-        return permitClass(field.getDeclaringClass());
-    }
-
-    protected boolean permitClass(Class<?> clazz) {
-        return validPackages.contains(clazz.getPackage().getName());
+        return false;
     }
 }

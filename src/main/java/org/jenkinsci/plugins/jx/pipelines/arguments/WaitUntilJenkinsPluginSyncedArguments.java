@@ -16,15 +16,18 @@
  */
 package org.jenkinsci.plugins.jx.pipelines.arguments;
 
+import hudson.Extension;
 import io.jenkins.functions.Argument;
+import org.jenkinsci.Symbol;
 import org.jenkinsci.plugins.jx.pipelines.model.ServiceConstants;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 
 import javax.validation.constraints.NotEmpty;
-import java.io.Serializable;
 
 /**
  */
-public class WaitUntilJenkinsPluginSyncedArguments implements Serializable {
+public class WaitUntilJenkinsPluginSyncedArguments extends JXPipelinesArguments<WaitUntilJenkinsPluginSyncedArguments> {
     private static final long serialVersionUID = 1L;
 
     @Argument
@@ -45,10 +48,16 @@ public class WaitUntilJenkinsPluginSyncedArguments implements Serializable {
                 '}';
     }
 
+    @DataBoundConstructor
+    public WaitUntilJenkinsPluginSyncedArguments() {
+
+    }
+
     public String getRepo() {
         return repo;
     }
 
+    @DataBoundSetter
     public void setRepo(String repo) {
         this.repo = repo;
     }
@@ -57,6 +66,7 @@ public class WaitUntilJenkinsPluginSyncedArguments implements Serializable {
         return name;
     }
 
+    @DataBoundSetter
     public void setName(String name) {
         this.name = name;
     }
@@ -65,7 +75,13 @@ public class WaitUntilJenkinsPluginSyncedArguments implements Serializable {
         return version;
     }
 
+    @DataBoundSetter
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    @Extension @Symbol("waitUntilJenkinsPluginSynced")
+    public static class DescriptorImpl extends JXPipelinesArgumentsDescriptor<WaitUntilJenkinsPluginSyncedArguments> {
+
     }
 }

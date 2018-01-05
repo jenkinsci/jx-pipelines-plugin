@@ -16,70 +16,46 @@
  */
 package org.jenkinsci.plugins.jx.pipelines.helpers;
 
-import org.apache.commons.beanutils.PropertyUtils;
+import org.jenkinsci.plugins.jx.pipelines.arguments.JXPipelinesArguments;
+import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.Whitelisted;
+import org.jenkinsci.plugins.structs.describable.DescribableModel;
+import org.jenkinsci.plugins.structs.describable.DescribableParameter;
 
-import java.beans.PropertyDescriptor;
-import java.util.List;
+import javax.annotation.Nonnull;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 /**
  */
 public class ConfigHelper {
     /**
-     * Returns all the property names
+     * Populates any suitable properties in the given configuration on the bean
      */
-    public static Set<String> propertyNames(Object bean) {
-        SortedSet<String> answer = new TreeSet<>();
-
-        PropertyDescriptor[] propertyDescriptors = PropertyUtils.getPropertyDescriptors(bean);
-        if (propertyDescriptors != null) {
-            for (PropertyDescriptor descriptor : propertyDescriptors) {
-                if (descriptor.getWriteMethod() != null) {
-                    answer.add(descriptor.getName());
-                }
+    @Whitelisted
+    public static <T,A extends JXPipelinesArguments> A populateBeanFromConfiguration(@Nonnull Class<A> klazz, Map<String, T> arguments) {
+        if (arguments != null) {
+            try {
+                return new DescribableModel<>(klazz).instantiate(arguments);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Could not populate argument for " + klazz.getName() + " from arguments " + arguments + ": " + e, e);
             }
         }
-        return answer;
+        return null;
     }
 
     /**
-     * Populates any suitable properties in the given configuration on the bean
+     * Gets a map of field names of an argument and their types.
      */
-    public static <T> void populateBeanFromConfiguration(Object bean, Map<String, T> arguments) {
-        if (arguments != null) {
-            Set<Map.Entry<String, T>> entries = arguments.entrySet();
-            for (Map.Entry<String, T> entry : entries) {
-                String name = entry.getKey();
-                Object value = entry.getValue();
-                try {
-                    setBeanProperty(bean, name, value);
-                } catch (Exception e) {
-                    throw new IllegalArgumentException("Could not set property " + name + " on bean " + bean + " to value " + value + " due to: " + e, e);
-                }
-            }
+    @Whitelisted
+    public static Map<String,Class> getArgumentFields(@Nonnull Class<? extends JXPipelinesArguments> klazz) {
+        Map<String, Class> fieldsAndTypes = new HashMap<>();
+
+        DescribableModel<? extends JXPipelinesArguments> m = new DescribableModel<>(klazz);
+
+        for (DescribableParameter p : m.getParameters()) {
+            fieldsAndTypes.put(p.getName(), p.getErasedType());
         }
 
-    }
-
-    protected static void setBeanProperty(Object object, String name, Object value) {
-        if (PropertyUtils.isWriteable(object, name)) {
-            try {
-                PropertyDescriptor descriptor = PropertyUtils.getPropertyDescriptor(object, name);
-                Class<?> propertyType = descriptor.getPropertyType();
-
-                // lets do some custom type conversions
-                if (propertyType.equals(boolean.class) || propertyType.equals(Boolean.class)) {
-                    if (!(value instanceof Boolean)) {
-                        value = BooleanHelpers.asBoolean(value);
-                    }
-                }
-                PropertyUtils.setProperty(object, name, value);
-            } catch (Exception e) {
-                throw new IllegalArgumentException("Failed to set property " + name + " on function object " + object + " due to: " + e, e);
-            }
-        }
+        return fieldsAndTypes;
     }
 }

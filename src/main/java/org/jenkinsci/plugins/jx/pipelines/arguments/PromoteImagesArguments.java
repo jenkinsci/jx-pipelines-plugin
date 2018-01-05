@@ -17,8 +17,12 @@
 package org.jenkinsci.plugins.jx.pipelines.arguments;
 
 import com.google.common.base.Strings;
+import hudson.Extension;
 import io.jenkins.functions.Argument;
+import org.jenkinsci.Symbol;
 import org.jenkinsci.plugins.jx.pipelines.StepExtension;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -26,7 +30,7 @@ import java.util.List;
 
 /**
  */
-public class PromoteImagesArguments implements Serializable {
+public class PromoteImagesArguments extends JXPipelinesArguments<PromoteImagesArguments> {
     private static final long serialVersionUID = 1L;
 
     @Argument
@@ -42,6 +46,7 @@ public class PromoteImagesArguments implements Serializable {
 
     private StepExtension stepExtension;
 
+    @DataBoundConstructor
     public PromoteImagesArguments() {
     }
 
@@ -72,6 +77,7 @@ public class PromoteImagesArguments implements Serializable {
         return images;
     }
 
+    @DataBoundSetter
     public void setImages(List<String> images) {
         this.images = images;
     }
@@ -80,6 +86,7 @@ public class PromoteImagesArguments implements Serializable {
         return tag;
     }
 
+    @DataBoundSetter
     public void setTag(String tag) {
         this.tag = tag;
     }
@@ -88,6 +95,7 @@ public class PromoteImagesArguments implements Serializable {
         return org;
     }
 
+    @DataBoundSetter
     public void setOrg(String org) {
         this.org = org;
     }
@@ -96,6 +104,7 @@ public class PromoteImagesArguments implements Serializable {
         return toRegistry;
     }
 
+    @DataBoundSetter
     public void setToRegistry(String toRegistry) {
         this.toRegistry = toRegistry;
     }
@@ -104,6 +113,7 @@ public class PromoteImagesArguments implements Serializable {
         return containerName;
     }
 
+    @DataBoundSetter
     public void setContainerName(String containerName) {
         this.containerName = containerName;
     }
@@ -112,7 +122,13 @@ public class PromoteImagesArguments implements Serializable {
         return stepExtension;
     }
 
+    @DataBoundSetter
     public void setStepExtension(StepExtension stepExtension) {
         this.stepExtension = stepExtension;
+    }
+
+    @Extension @Symbol("promoteImages")
+    public static class DescriptorImpl extends JXPipelinesArgumentsDescriptor<PromoteImagesArguments> {
+
     }
 }

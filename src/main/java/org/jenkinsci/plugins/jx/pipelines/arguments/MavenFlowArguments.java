@@ -16,13 +16,17 @@
  */
 package org.jenkinsci.plugins.jx.pipelines.arguments;
 
+import hudson.Extension;
 import io.fabric8.utils.Strings;
 import io.jenkins.functions.Argument;
+import org.jenkinsci.Symbol;
 import org.jenkinsci.plugins.jx.pipelines.StepExtension;
 import org.jenkinsci.plugins.jx.pipelines.helpers.ConfigHelper;
 import org.jenkinsci.plugins.jx.pipelines.helpers.GitRepositoryInfo;
 import org.jenkinsci.plugins.jx.pipelines.model.ServiceConstants;
 import org.jenkinsci.plugins.jx.pipelines.model.StagedProjectInfo;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 
 import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
@@ -32,7 +36,7 @@ import java.util.Map;
 
 /**
  */
-public class MavenFlowArguments implements Serializable {
+public class MavenFlowArguments extends JXPipelinesArguments<MavenFlowArguments> {
     private static final long serialVersionUID = 1L;
 
     @NotEmpty
@@ -111,16 +115,20 @@ public class MavenFlowArguments implements Serializable {
                 '}';
     }
 
-    public static MavenFlowArguments newInstance(Map map) {
-        MavenFlowArguments arguments = new MavenFlowArguments();
-        ConfigHelper.populateBeanFromConfiguration(arguments, map);
-        return arguments;
+    @DataBoundConstructor
+    public MavenFlowArguments() {
+
+    }
+
+    public static MavenFlowArguments newInstance(Map<String,?> map) {
+        return ConfigHelper.populateBeanFromConfiguration(MavenFlowArguments.class, map);
     }
 
     public String getGitCloneUrl() {
         return gitCloneUrl;
     }
 
+    @DataBoundSetter
     public void setGitCloneUrl(String gitCloneUrl) {
         this.gitCloneUrl = gitCloneUrl;
     }
@@ -192,6 +200,7 @@ public class MavenFlowArguments implements Serializable {
         return extraSetVersionArgs;
     }
 
+    @DataBoundSetter
     public void setExtraSetVersionArgs(String extraSetVersionArgs) {
         this.extraSetVersionArgs = extraSetVersionArgs;
     }
@@ -200,6 +209,7 @@ public class MavenFlowArguments implements Serializable {
         return extraImagesToStage;
     }
 
+    @DataBoundSetter
     public void setExtraImagesToStage(List<String> extraImagesToStage) {
         this.extraImagesToStage = extraImagesToStage;
     }
@@ -208,6 +218,7 @@ public class MavenFlowArguments implements Serializable {
         return containerName;
     }
 
+    @DataBoundSetter
     public void setContainerName(String containerName) {
         this.containerName = containerName;
     }
@@ -216,6 +227,7 @@ public class MavenFlowArguments implements Serializable {
         return dockerOrganisation;
     }
 
+    @DataBoundSetter
     public void setDockerOrganisation(String dockerOrganisation) {
         this.dockerOrganisation = dockerOrganisation;
     }
@@ -224,6 +236,7 @@ public class MavenFlowArguments implements Serializable {
         return promoteToDockerRegistry;
     }
 
+    @DataBoundSetter
     public void setPromoteToDockerRegistry(String promoteToDockerRegistry) {
         this.promoteToDockerRegistry = promoteToDockerRegistry;
     }
@@ -232,6 +245,7 @@ public class MavenFlowArguments implements Serializable {
         return promoteDockerImages;
     }
 
+    @DataBoundSetter
     public void setPromoteDockerImages(List<String> promoteDockerImages) {
         this.promoteDockerImages = promoteDockerImages;
     }
@@ -240,6 +254,7 @@ public class MavenFlowArguments implements Serializable {
         return extraImagesToTag;
     }
 
+    @DataBoundSetter
     public void setExtraImagesToTag(List<String> extraImagesToTag) {
         this.extraImagesToTag = extraImagesToTag;
     }
@@ -248,6 +263,7 @@ public class MavenFlowArguments implements Serializable {
         return repositoryToWaitFor;
     }
 
+    @DataBoundSetter
     public void setRepositoryToWaitFor(String repositoryToWaitFor) {
         this.repositoryToWaitFor = repositoryToWaitFor;
     }
@@ -256,6 +272,7 @@ public class MavenFlowArguments implements Serializable {
         return groupId;
     }
 
+    @DataBoundSetter
     public void setGroupId(String groupId) {
         this.groupId = groupId;
     }
@@ -264,6 +281,7 @@ public class MavenFlowArguments implements Serializable {
         return artifactExtensionToWaitFor;
     }
 
+    @DataBoundSetter
     public void setArtifactExtensionToWaitFor(String artifactExtensionToWaitFor) {
         this.artifactExtensionToWaitFor = artifactExtensionToWaitFor;
     }
@@ -272,6 +290,7 @@ public class MavenFlowArguments implements Serializable {
         return artifactIdToWaitFor;
     }
 
+    @DataBoundSetter
     public void setArtifactIdToWaitFor(String artifactIdToWaitFor) {
         this.artifactIdToWaitFor = artifactIdToWaitFor;
     }
@@ -280,6 +299,7 @@ public class MavenFlowArguments implements Serializable {
         return pauseOnFailure;
     }
 
+    @DataBoundSetter
     public void setPauseOnFailure(boolean pauseOnFailure) {
         this.pauseOnFailure = pauseOnFailure;
     }
@@ -288,6 +308,7 @@ public class MavenFlowArguments implements Serializable {
         return pauseOnSuccess;
     }
 
+    @DataBoundSetter
     public void setPauseOnSuccess(boolean pauseOnSuccess) {
         this.pauseOnSuccess = pauseOnSuccess;
     }
@@ -296,6 +317,7 @@ public class MavenFlowArguments implements Serializable {
         return cdOrganisation;
     }
 
+    @DataBoundSetter
     public void setCdOrganisation(String cdOrganisation) {
         this.cdOrganisation = cdOrganisation;
     }
@@ -304,6 +326,7 @@ public class MavenFlowArguments implements Serializable {
         return cdBranches;
     }
 
+    @DataBoundSetter
     public void setCdBranches(List<String> cdBranches) {
         this.cdBranches = cdBranches;
     }
@@ -312,6 +335,7 @@ public class MavenFlowArguments implements Serializable {
         return useMavenForNextVersion;
     }
 
+    @DataBoundSetter
     public void setUseMavenForNextVersion(boolean useMavenForNextVersion) {
         this.useMavenForNextVersion = useMavenForNextVersion;
     }
@@ -320,6 +344,7 @@ public class MavenFlowArguments implements Serializable {
         return clientsContainerName;
     }
 
+    @DataBoundSetter
     public void setClientsContainerName(String clientsContainerName) {
         this.clientsContainerName = clientsContainerName;
     }
@@ -328,6 +353,7 @@ public class MavenFlowArguments implements Serializable {
         return useStaging;
     }
 
+    @DataBoundSetter
     public void setUseStaging(boolean useStaging) {
         this.useStaging = useStaging;
     }
@@ -336,6 +362,7 @@ public class MavenFlowArguments implements Serializable {
         return stageRepositoryUrl;
     }
 
+    @DataBoundSetter
     public void setStageRepositoryUrl(String stageRepositoryUrl) {
         this.stageRepositoryUrl = stageRepositoryUrl;
     }
@@ -344,6 +371,7 @@ public class MavenFlowArguments implements Serializable {
         return stageServerId;
     }
 
+    @DataBoundSetter
     public void setStageServerId(String stageServerId) {
         this.stageServerId = stageServerId;
     }
@@ -352,6 +380,7 @@ public class MavenFlowArguments implements Serializable {
         return skipTests;
     }
 
+    @DataBoundSetter
     public void setSkipTests(boolean skipTests) {
         this.skipTests = skipTests;
     }
@@ -360,6 +389,7 @@ public class MavenFlowArguments implements Serializable {
         return useSonatype;
     }
 
+    @DataBoundSetter
     public void setUseSonatype(boolean useSonatype) {
         this.useSonatype = useSonatype;
     }
@@ -368,6 +398,7 @@ public class MavenFlowArguments implements Serializable {
         return updateNextDevelopmentVersion;
     }
 
+    @DataBoundSetter
     public void setUpdateNextDevelopmentVersion(boolean updateNextDevelopmentVersion) {
         this.updateNextDevelopmentVersion = updateNextDevelopmentVersion;
     }
@@ -376,6 +407,7 @@ public class MavenFlowArguments implements Serializable {
         return disableGitPush;
     }
 
+    @DataBoundSetter
     public void setDisableGitPush(boolean disableGitPush) {
         this.disableGitPush = disableGitPush;
     }
@@ -384,6 +416,7 @@ public class MavenFlowArguments implements Serializable {
         return mavenProfiles;
     }
 
+    @DataBoundSetter
     public void setMavenProfiles(List<String> mavenProfiles) {
         this.mavenProfiles = mavenProfiles;
     }
@@ -392,6 +425,7 @@ public class MavenFlowArguments implements Serializable {
         return promoteArtifactsExtension;
     }
 
+    @DataBoundSetter
     public void setPromoteArtifactsExtension(StepExtension promoteArtifactsExtension) {
         this.promoteArtifactsExtension = promoteArtifactsExtension;
     }
@@ -400,6 +434,7 @@ public class MavenFlowArguments implements Serializable {
         return promoteImagesExtension;
     }
 
+    @DataBoundSetter
     public void setPromoteImagesExtension(StepExtension promoteImagesExtension) {
         this.promoteImagesExtension = promoteImagesExtension;
     }
@@ -408,6 +443,7 @@ public class MavenFlowArguments implements Serializable {
         return tagImagesExtension;
     }
 
+    @DataBoundSetter
     public void setTagImagesExtension(StepExtension tagImagesExtension) {
         this.tagImagesExtension = tagImagesExtension;
     }
@@ -416,6 +452,7 @@ public class MavenFlowArguments implements Serializable {
         return waitUntilPullRequestMergedExtension;
     }
 
+    @DataBoundSetter
     public void setWaitUntilPullRequestMergedExtension(StepExtension waitUntilPullRequestMergedExtension) {
         this.waitUntilPullRequestMergedExtension = waitUntilPullRequestMergedExtension;
     }
@@ -424,7 +461,13 @@ public class MavenFlowArguments implements Serializable {
         return waitUntilArtifactSyncedExtension;
     }
 
+    @DataBoundSetter
     public void setWaitUntilArtifactSyncedExtension(StepExtension waitUntilArtifactSyncedExtension) {
         this.waitUntilArtifactSyncedExtension = waitUntilArtifactSyncedExtension;
+    }
+
+    @Extension @Symbol("mavenFlow")
+    public static class DescriptorImpl extends JXPipelinesArgumentsDescriptor<MavenFlowArguments> {
+
     }
 }

@@ -3,6 +3,8 @@ package org.jenkinsci.plugins.jx.pipelines.dsl
 import org.jenkinsci.plugins.jx.pipelines.arguments.WaitUntilPullRequestMergedArguments
 import org.jenkinsci.plugins.workflow.cps.CpsScript
 
+import static org.jenkinsci.plugins.jx.pipelines.dsl.JXDSLUtils.echo
+
 class WaitUntilPullRequestMerged {
   private CpsScript script
 
@@ -16,7 +18,7 @@ class WaitUntilPullRequestMerged {
 
     def id = config.id
     def project = config.project
-    script.echo "pull request id ${id}"
+    echo "pull request id ${id}"
 
     def branchName
     def notified = false
@@ -24,7 +26,7 @@ class WaitUntilPullRequestMerged {
     // wait until the PR is merged, if there's a merge conflict the notify and wait until PR is finally merged
     return flow.doStepExecution(config.stepExtension) {
       script.waitUntil {
-        script.echo "https://api.github.com/repos/${project}/pulls/${id}"
+        echo "https://api.github.com/repos/${project}/pulls/${id}"
 
         def apiUrl = new URL("https://api.github.com/repos/${project}/pulls/${id}")
 
@@ -34,18 +36,18 @@ class WaitUntilPullRequestMerged {
         }
 
         if (rs.merged == true) {
-          script.echo "PR ${id} merged"
+          echo "PR ${id} merged"
           return true
         }
 
         if (rs.state == 'closed') {
-          script.echo "PR ${id} closed"
+          echo "PR ${id} closed"
           return true
         }
 
         branchName = rs.head.ref
         def sha = rs.head.sha
-        script.echo "checking status of commit ${sha}"
+        echo "checking status of commit ${sha}"
 
         apiUrl = new URL("https://api.github.com/repos/${project}/commits/${sha}/status")
         rs = script.restGetURL {
@@ -53,7 +55,7 @@ class WaitUntilPullRequestMerged {
           url = apiUrl
         }
 
-        script.echo "${project} Pull request ${id} state ${rs.state}"
+        echo "${project} Pull request ${id} state ${rs.state}"
 
         def values = project.split('/')
         def prj = values[1]
@@ -92,7 +94,7 @@ git push origin fixPR${id}:${branchName}
         }
 
       } catch (err) {
-        script.echo "not able to delete repo: ${err}"
+        echo "not able to delete repo: ${err}"
       }
     }
   }
@@ -110,7 +112,7 @@ To do this chose the abort option below, note this particular action will not ab
       script.hubotApprove message: proceedMessage, failOnError: false
       return true
     } catch (err) {
-      script.echo 'Skipping conflict'
+      echo 'Skipping conflict'
       return false
     }
   }

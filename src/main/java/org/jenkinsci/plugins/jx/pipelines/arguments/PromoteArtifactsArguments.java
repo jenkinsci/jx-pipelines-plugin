@@ -16,8 +16,12 @@
  */
 package org.jenkinsci.plugins.jx.pipelines.arguments;
 
+import hudson.Extension;
 import io.jenkins.functions.Argument;
+import org.jenkinsci.Symbol;
 import org.jenkinsci.plugins.jx.pipelines.StepExtension;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -25,7 +29,7 @@ import java.util.List;
 
 /**
  */
-public class PromoteArtifactsArguments implements Serializable {
+public class PromoteArtifactsArguments extends JXPipelinesArguments<PromoteArtifactsArguments> {
     private static final long serialVersionUID = 1L;
 
     @Argument
@@ -45,6 +49,7 @@ public class PromoteArtifactsArguments implements Serializable {
 
     private StepExtension stepExtension;
 
+    @DataBoundConstructor
     public PromoteArtifactsArguments() {
     }
 
@@ -74,6 +79,7 @@ public class PromoteArtifactsArguments implements Serializable {
         return project;
     }
 
+    @DataBoundSetter
     public void setProject(String project) {
         this.project = project;
     }
@@ -82,6 +88,7 @@ public class PromoteArtifactsArguments implements Serializable {
         return version;
     }
 
+    @DataBoundSetter
     public void setVersion(String version) {
         this.version = version;
     }
@@ -90,6 +97,7 @@ public class PromoteArtifactsArguments implements Serializable {
         return repoIds;
     }
 
+    @DataBoundSetter
     public void setRepoIds(List<String> repoIds) {
         this.repoIds = repoIds;
     }
@@ -98,6 +106,7 @@ public class PromoteArtifactsArguments implements Serializable {
         return containerName;
     }
 
+    @DataBoundSetter
     public void setContainerName(String containerName) {
         this.containerName = containerName;
     }
@@ -106,6 +115,7 @@ public class PromoteArtifactsArguments implements Serializable {
         return helmPush;
     }
 
+    @DataBoundSetter
     public void setHelmPush(boolean helmPush) {
         this.helmPush = helmPush;
     }
@@ -114,6 +124,7 @@ public class PromoteArtifactsArguments implements Serializable {
         return updateNextDevelopmentVersion;
     }
 
+    @DataBoundSetter
     public void setUpdateNextDevelopmentVersion(boolean updateNextDevelopmentVersion) {
         this.updateNextDevelopmentVersion = updateNextDevelopmentVersion;
     }
@@ -122,6 +133,7 @@ public class PromoteArtifactsArguments implements Serializable {
         return updateNextDevelopmentVersionArguments;
     }
 
+    @DataBoundSetter
     public void setUpdateNextDevelopmentVersionArguments(String updateNextDevelopmentVersionArguments) {
         this.updateNextDevelopmentVersionArguments = updateNextDevelopmentVersionArguments;
     }
@@ -130,7 +142,13 @@ public class PromoteArtifactsArguments implements Serializable {
         return stepExtension;
     }
 
+    @DataBoundSetter
     public void setStepExtension(StepExtension stepExtension) {
         this.stepExtension = stepExtension;
+    }
+
+    @Extension @Symbol("promoteArtifacts")
+    public static class DescriptorImpl extends JXPipelinesArgumentsDescriptor<PromoteArtifactsArguments> {
+
     }
 }

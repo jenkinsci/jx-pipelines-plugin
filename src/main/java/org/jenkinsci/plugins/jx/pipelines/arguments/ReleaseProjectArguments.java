@@ -16,13 +16,17 @@
  */
 package org.jenkinsci.plugins.jx.pipelines.arguments;
 
+import hudson.Extension;
 import io.fabric8.utils.Strings;
 import io.jenkins.functions.Argument;
+import org.jenkinsci.Symbol;
 import org.jenkinsci.plugins.jx.pipelines.StepExtension;
 import org.jenkinsci.plugins.jx.pipelines.helpers.ConfigHelper;
 import org.jenkinsci.plugins.jx.pipelines.model.ServiceConstants;
 import org.jenkinsci.plugins.jx.pipelines.model.StagedProjectInfo;
 import org.kohsuke.github.GHPullRequest;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 
 import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
@@ -32,7 +36,7 @@ import java.util.Map;
 
 /**
  */
-public class ReleaseProjectArguments implements Serializable {
+public class ReleaseProjectArguments extends JXPipelinesArguments<ReleaseProjectArguments> {
     private static final long serialVersionUID = 1L;
 
     @Argument
@@ -76,6 +80,7 @@ public class ReleaseProjectArguments implements Serializable {
     private StepExtension waitUntilPullRequestMergedExtension;
     private StepExtension waitUntilArtifactSyncedExtension;
 
+    @DataBoundConstructor
     public ReleaseProjectArguments() {
     }
 
@@ -86,9 +91,7 @@ public class ReleaseProjectArguments implements Serializable {
     }
 
     public static ReleaseProjectArguments newInstance(Map<String, Object> map) {
-        ReleaseProjectArguments answer = new ReleaseProjectArguments();
-        ConfigHelper.populateBeanFromConfiguration(answer, map);
-        return answer;
+        return ConfigHelper.populateBeanFromConfiguration(ReleaseProjectArguments.class, map);
     }
 
     @Override
@@ -168,6 +171,7 @@ public class ReleaseProjectArguments implements Serializable {
         return project;
     }
 
+    @DataBoundSetter
     public void setProject(String project) {
         this.project = project;
     }
@@ -176,6 +180,7 @@ public class ReleaseProjectArguments implements Serializable {
         return releaseVersion;
     }
 
+    @DataBoundSetter
     public void setReleaseVersion(String releaseVersion) {
         this.releaseVersion = releaseVersion;
     }
@@ -184,6 +189,7 @@ public class ReleaseProjectArguments implements Serializable {
         return repoIds;
     }
 
+    @DataBoundSetter
     public void setRepoIds(List<String> repoIds) {
         this.repoIds = repoIds;
     }
@@ -192,6 +198,7 @@ public class ReleaseProjectArguments implements Serializable {
         return containerName;
     }
 
+    @DataBoundSetter
     public void setContainerName(String containerName) {
         this.containerName = containerName;
     }
@@ -200,6 +207,7 @@ public class ReleaseProjectArguments implements Serializable {
         return dockerOrganisation;
     }
 
+    @DataBoundSetter
     public void setDockerOrganisation(String dockerOrganisation) {
         this.dockerOrganisation = dockerOrganisation;
     }
@@ -208,6 +216,7 @@ public class ReleaseProjectArguments implements Serializable {
         return promoteToDockerRegistry;
     }
 
+    @DataBoundSetter
     public void setPromoteToDockerRegistry(String promoteToDockerRegistry) {
         this.promoteToDockerRegistry = promoteToDockerRegistry;
     }
@@ -216,6 +225,7 @@ public class ReleaseProjectArguments implements Serializable {
         return promoteDockerImages;
     }
 
+    @DataBoundSetter
     public void setPromoteDockerImages(List<String> promoteDockerImages) {
         this.promoteDockerImages = promoteDockerImages;
     }
@@ -224,6 +234,7 @@ public class ReleaseProjectArguments implements Serializable {
         return extraImagesToTag;
     }
 
+    @DataBoundSetter
     public void setExtraImagesToTag(List<String> extraImagesToTag) {
         this.extraImagesToTag = extraImagesToTag;
     }
@@ -232,6 +243,7 @@ public class ReleaseProjectArguments implements Serializable {
         return repositoryToWaitFor;
     }
 
+    @DataBoundSetter
     public void setRepositoryToWaitFor(String repositoryToWaitFor) {
         this.repositoryToWaitFor = repositoryToWaitFor;
     }
@@ -240,6 +252,7 @@ public class ReleaseProjectArguments implements Serializable {
         return groupId;
     }
 
+    @DataBoundSetter
     public void setGroupId(String groupId) {
         this.groupId = groupId;
     }
@@ -248,6 +261,7 @@ public class ReleaseProjectArguments implements Serializable {
         return artifactExtensionToWaitFor;
     }
 
+    @DataBoundSetter
     public void setArtifactExtensionToWaitFor(String artifactExtensionToWaitFor) {
         this.artifactExtensionToWaitFor = artifactExtensionToWaitFor;
     }
@@ -256,6 +270,7 @@ public class ReleaseProjectArguments implements Serializable {
         return artifactIdToWaitFor;
     }
 
+    @DataBoundSetter
     public void setArtifactIdToWaitFor(String artifactIdToWaitFor) {
         this.artifactIdToWaitFor = artifactIdToWaitFor;
     }
@@ -264,6 +279,7 @@ public class ReleaseProjectArguments implements Serializable {
         return useGitTagForNextVersion;
     }
 
+    @DataBoundSetter
     public void setUseGitTagForNextVersion(boolean useGitTagForNextVersion) {
         this.useGitTagForNextVersion = useGitTagForNextVersion;
     }
@@ -272,6 +288,7 @@ public class ReleaseProjectArguments implements Serializable {
         return helmPush;
     }
 
+    @DataBoundSetter
     public void setHelmPush(boolean helmPush) {
         this.helmPush = helmPush;
     }
@@ -280,6 +297,7 @@ public class ReleaseProjectArguments implements Serializable {
         return updateNextDevelopmentVersion;
     }
 
+    @DataBoundSetter
     public void setUpdateNextDevelopmentVersion(boolean updateNextDevelopmentVersion) {
         this.updateNextDevelopmentVersion = updateNextDevelopmentVersion;
     }
@@ -288,6 +306,7 @@ public class ReleaseProjectArguments implements Serializable {
         return updateNextDevelopmentVersionArguments;
     }
 
+    @DataBoundSetter
     public void setUpdateNextDevelopmentVersionArguments(String updateNextDevelopmentVersionArguments) {
         this.updateNextDevelopmentVersionArguments = updateNextDevelopmentVersionArguments;
     }
@@ -296,6 +315,7 @@ public class ReleaseProjectArguments implements Serializable {
         return promoteArtifactsExtension;
     }
 
+    @DataBoundSetter
     public void setPromoteArtifactsExtension(StepExtension promoteArtifactsExtension) {
         this.promoteArtifactsExtension = promoteArtifactsExtension;
     }
@@ -304,6 +324,7 @@ public class ReleaseProjectArguments implements Serializable {
         return promoteImagesExtension;
     }
 
+    @DataBoundSetter
     public void setPromoteImagesExtension(StepExtension promoteImagesExtension) {
         this.promoteImagesExtension = promoteImagesExtension;
     }
@@ -312,6 +333,7 @@ public class ReleaseProjectArguments implements Serializable {
         return tagImagesExtension;
     }
 
+    @DataBoundSetter
     public void setTagImagesExtension(StepExtension tagImagesExtension) {
         this.tagImagesExtension = tagImagesExtension;
     }
@@ -320,6 +342,7 @@ public class ReleaseProjectArguments implements Serializable {
         return waitUntilPullRequestMergedExtension;
     }
 
+    @DataBoundSetter
     public void setWaitUntilPullRequestMergedExtension(StepExtension waitUntilPullRequestMergedExtension) {
         this.waitUntilPullRequestMergedExtension = waitUntilPullRequestMergedExtension;
     }
@@ -328,7 +351,13 @@ public class ReleaseProjectArguments implements Serializable {
         return waitUntilArtifactSyncedExtension;
     }
 
+    @DataBoundSetter
     public void setWaitUntilArtifactSyncedExtension(StepExtension waitUntilArtifactSyncedExtension) {
         this.waitUntilArtifactSyncedExtension = waitUntilArtifactSyncedExtension;
+    }
+
+    @Extension @Symbol("releaseProject")
+    public static class DescriptorImpl extends JXPipelinesArgumentsDescriptor<ReleaseProjectArguments> {
+
     }
 }

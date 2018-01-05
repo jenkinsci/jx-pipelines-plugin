@@ -65,10 +65,9 @@ public class KubernetesMavenFlowDSLTest extends AbstractKubernetesPipelineTest {
         gitStep.setBranch(branchName);
         p.setDefinition(new CpsScmFlowDefinition(gitStep.createSCM(), "Jenkinsfile"));
 
-
-        WorkflowRun b = p.scheduleBuild2(0).waitForStart();
-        assertNotNull(b);
-        r.assertBuildStatusSuccess(r.waitForCompletion(b));
+        WorkflowRun b = r.buildAndAssertSuccess(p);
+        r.assertLogContains("Disable waiting for artifacts", b);
+        r.assertLogContains("====> hook invoked before promote artifacts!", b);
         //r.assertLogContains("Apache Maven 3.3.9", b);
         //r.assertLogContains("INSIDE_CONTAINER_ENV_VAR = " + CONTAINER_ENV_VAR_VALUE + "\n", b);
     }
