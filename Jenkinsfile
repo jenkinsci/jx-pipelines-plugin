@@ -1,22 +1,4 @@
-pipeline {
-  agent {
-    label "jenkins-maven"
-  }
-  stages {
-    stage('Maven Release') {
-      steps {
-        mavenFlow {
-          cdOrganisation "jx-pipelines-plugin"
-          useStaging true
-          useSonatype true
+#!/usr/bin/env groovy
 
-          promoteArtifacts {
-            pre {
-              echo "====> hook invoked before promote artifacts!"
-            }
-          }
-        }
-      }
-    }
-  }
-}
+/* `buildPlugin` step provided by: https://github.com/jenkins-infra/pipeline-library */
+buildPlugin()
