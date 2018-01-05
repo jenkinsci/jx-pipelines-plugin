@@ -4,6 +4,8 @@ import org.jenkinsci.plugins.jx.pipelines.arguments.WaitUntilArtifactSyncedArgum
 import org.jenkinsci.plugins.jx.pipelines.model.ServiceConstants
 import org.jenkinsci.plugins.workflow.cps.CpsScript
 
+import static org.jenkinsci.plugins.jx.pipelines.dsl.JXDSLUtils.echo
+
 class WaitUntilArtifactSyncedWithCentral {
   private CpsScript script
 

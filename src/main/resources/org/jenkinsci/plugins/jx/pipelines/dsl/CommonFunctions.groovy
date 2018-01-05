@@ -12,6 +12,8 @@ import org.jenkinsci.plugins.workflow.cps.CpsScript
 
 import java.util.regex.Pattern
 
+import static org.jenkinsci.plugins.jx.pipelines.dsl.JXDSLUtils.echo
+
 class CommonFunctions {
   private CpsScript script
   

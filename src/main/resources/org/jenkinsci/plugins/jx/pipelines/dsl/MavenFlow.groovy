@@ -15,6 +15,8 @@ import org.jenkinsci.plugins.jx.pipelines.helpers.GitRepositoryInfo
 import org.jenkinsci.plugins.jx.pipelines.model.StagedProjectInfo
 import org.jenkinsci.plugins.workflow.cps.CpsScript
 
+import static org.jenkinsci.plugins.jx.pipelines.dsl.JXDSLUtils.echo
+
 class MavenFlow {
   private CpsScript script
   private Utils utils

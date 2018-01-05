@@ -3,6 +3,8 @@ package org.jenkinsci.plugins.jx.pipelines.dsl
 import org.jenkinsci.plugins.jx.pipelines.arguments.PromoteArtifactsArguments
 import org.jenkinsci.plugins.workflow.cps.CpsScript
 
+import static org.jenkinsci.plugins.jx.pipelines.dsl.JXDSLUtils.echo
+
 class PromoteArtifacts {
   private CpsScript script
 

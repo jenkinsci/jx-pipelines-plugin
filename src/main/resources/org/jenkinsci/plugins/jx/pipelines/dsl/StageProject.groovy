@@ -6,6 +6,8 @@ import org.jenkinsci.plugins.jx.pipelines.helpers.MavenHelpers
 import org.jenkinsci.plugins.jx.pipelines.model.StagedProjectInfo
 import org.jenkinsci.plugins.workflow.cps.CpsScript
 
+import static org.jenkinsci.plugins.jx.pipelines.dsl.JXDSLUtils.echo
+
 class StageProject {
   private CpsScript script
 
