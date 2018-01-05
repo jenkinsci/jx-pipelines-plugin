@@ -56,19 +56,18 @@ class JXDSLUtils {
      */
     @Whitelisted
     static boolean deleteNamespace(@Nonnull String name) {
-        TaskListener listener = getListener()
         KubernetesClient kubernetes = new DefaultKubernetesClient()
         try {
             Namespace namespace = kubernetes.namespaces().withName(name).get()
             if (namespace != null) {
-                listener.getLogger().println("Deleting namespace " + name + "...")
+                echo("Deleting namespace " + name + "...")
                 kubernetes.namespaces().withName(name).delete()
-                listener.getLogger().println("Deleted namespace " + name)
+                echo("Deleted namespace " + name)
 
                 // TODO should we wait for the namespace to really go away???
                 namespace = kubernetes.namespaces().withName(name).get()
                 if (namespace != null) {
-                    listener.getLogger().println("Namespace " + name + " still exists!")
+                    echo("Namespace " + name + " still exists!")
                 }
                 return true
             }
@@ -142,7 +141,7 @@ class JXDSLUtils {
             new InputStreamReader(connection.getInputStream(), "UTF-8")
             return true
         } catch (FileNotFoundException e1) {
-            getListener().getLogger().println("File not yet available: ${url.toString()}")
+            echo("File not yet available: ${url.toString()}")
             return false
         } finally {
             connection.disconnect()
@@ -165,10 +164,10 @@ class JXDSLUtils {
         try {
             connection.connect()
             new InputStreamReader(connection.getInputStream(), "UTF-8")
-            getListener().getLogger().println("File is available at: ${url.toString()}")
+            echo("File is available at: ${url.toString()}")
             return true
         } catch (FileNotFoundException e1) {
-            getListener().getLogger().println("File not yet available: ${url.toString()}")
+            echo("File not yet available: ${url.toString()}")
             return false
         } finally {
             connection.disconnect()
