@@ -1,7 +1,6 @@
 package org.jenkinsci.plugins.jx.pipelines.dsl
 
 import com.cloudbees.groovy.cps.NonCPS
-import groovy.json.JsonSlurper
 import hudson.model.Result
 import io.fabric8.kubernetes.api.KubernetesHelper
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
@@ -68,22 +67,16 @@ class CommonFunctions {
     script.sh 'find target/nexus-staging/staging/  -maxdepth 1 -name "*.properties" > target/nexus-staging/staging/repos.txt'
     def repos = script.readFile('target/nexus-staging/staging/repos.txt')
     def list = []
-    // workflow closure not working here https://issues.jenkins-ci.org/browse/JENKINS-26481
-    def filelines = new String(repos).split('\n')
-    for (int i = 0; i < filelines.size(); i++) {
-      def matcher = script.readFile(filelines[i]) =~ 'stagingRepository.id=(.+)'
-      list << matcher[0][1]
+    list = repos.split('\n').collect { r ->
+      def matcher = script.readFile(r) =~ 'stagingRepository.id=(.+)'
+      if (matcher != null) {
+        return matcher[0][1]
+      }
     }
     return list
   }
 
-  def getDockerHubImageTags(String image) {
-    try {
-      return "https://registry.hub.docker.com/v1/repositories/${image}/tags".toURL().getText()
-    } catch (err) {
-      return "NO_IMAGE_FOUND"
-    }
-  }
+  // getDockerHubImageTags moved to JXDSLUtils
 
   def searchAndReplaceMavenVersionPropertyNoCommit(String property, String newVersion) {
     // example matches <fabric8.version>2.3</fabric8.version> <fabric8.version>2.3.12</fabric8.version> <fabric8.version>2.3.12.5</fabric8.version>
@@ -310,319 +303,71 @@ class CommonFunctions {
     script.sh 'cd systests && mvn clean && mvn integration-test verify'
   }
 
-  def createPullRequest(String message, String project, String branch) {
-    def githubToken = getGitHubToken()
-    def apiUrl = new URL("https://api.github.com/repos/${project}/pulls")
-    echo "creating PR for ${apiUrl}"
+  def createPullRequest(String message, String project, String branch, String githubToken = getGitHubToken()) {
     try {
-      HttpURLConnection connection = apiUrl.openConnection()
-      if (githubToken.length() > 0) {
-        connection.setRequestProperty("Authorization", "Bearer ${githubToken}")
-      }
-      connection.setRequestMethod("POST")
-      connection.setDoOutput(true)
-      connection.connect()
-
-      def body = """
-    {
-      "title": "${message}",
-      "head": "${branch}",
-      "base": "master"
-    }
-    """
-      echo "sending body: ${body}\n"
-
-      OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())
-      writer.write(body)
-      writer.flush()
-
-      // execute the POST request
-      def rs = new JsonSlurper().parse(new InputStreamReader(connection.getInputStream(), "UTF-8"))
-
-      connection.disconnect()
-
-      echo "Received PR id:  ${rs.number}"
-      return rs.number + ''
-
+      return JXDSLUtils.createPullRequest(message, project, branch, githubToken)
     } catch (err) {
       script.error "ERROR  ${err}"
     }
   }
 
-  def closePR(project, id, newVersion, newPRID) {
-    def githubToken = getGitHubToken()
-    def apiUrl = new URL("https://api.github.com/repos/${project}/pulls/${id}")
-    echo "deleting PR for ${apiUrl}"
-
-    HttpURLConnection connection = apiUrl.openConnection()
-    if (githubToken.length() > 0) {
-      connection.setRequestProperty("Authorization", "Bearer ${githubToken}")
-    }
-    connection.setRequestProperty("X-HTTP-Method-Override", "PATCH");
-    connection.setRequestMethod("POST")
-    connection.setDoOutput(true)
-    connection.connect()
-
-    def body = """
-    {
-      "state": "closed",
-      "body": "Superseded by new version ${newVersion} #${newPRID}"
-    }
-    """
-    echo "sending body: ${body}\n"
-
-    OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())
-    writer.write(body)
-    writer.flush()
-
-    // execute the PATCH     request
-    def rs = new JsonSlurper().parse(new InputStreamReader(connection.getInputStream(), "UTF-8"))
-
-    def code = connection.getResponseCode()
-
-    if (code != 200) {
-      script.error "${project} PR ${id} not merged.  ${connection.getResponseMessage()}"
-
-    } else {
-      echo "${project} PR ${id} ${rs.message}"
-    }
-    connection.disconnect()
-  }
-
-  def getIssueComments(project, id, githubToken = null) {
-    if (!githubToken) {
-      githubToken = getGitHubToken()
-    }
-    def apiUrl = new URL("https://api.github.com/repos/${project}/issues/${id}/comments")
-    echo "getting comments for ${apiUrl}"
-
-    def HttpURLConnection connection = apiUrl.openConnection()
-    if (githubToken != null && githubToken.length() > 0) {
-      connection.setRequestProperty("Authorization", "Bearer ${githubToken}")
-    }
-
-    connection.setRequestMethod("GET")
-    connection.setDoOutput(true)
-    connection.connect()
-
-    def rs = new JsonSlurper().parse(new InputStreamReader(connection.getInputStream(), "UTF-8"))
-
-    def code = 0
+  def closePR(project, id, newVersion, newPRID, String githubToken = getGitHubToken()) {
     try {
-      code = connection.getResponseCode()
-      // } catch (org.jenkinsci.plugins.scriptsecurity.sandbox.RejectedAccessException ex){
-      //     echo "${ex} will try to continue"
-    } finally {
-      connection.disconnect()
+      JXDSLUtils.closePR(project, id, newVersion, newPRID, githubToken)
+    } catch (Exception e) {
+      script.error "${e.message}"
     }
-
-    if (code != 0 && code != 200) {
-      script.error "Cannot get ${project} PR ${id} comments.  ${connection.getResponseMessage()}"
-    }
-
-    return rs
   }
 
-  def waitUntilSuccessStatus(project, ref) {
+  def getIssueComments(project, id, githubToken = getGitHubToken()) {
+    try {
+      return JXDSLUtils.getIssueComments(project, id, githubToken)
+    } catch (Exception e) {
+      script.error("${e.message}")
+    }
+  }
 
-    def githubToken = getGitHubToken()
-
-    def apiUrl = new URL("https://api.github.com/repos/${project}/commits/${ref}/status")
+  def waitUntilSuccessStatus(project, ref, String githubToken = getGitHubToken()) {
     script.waitUntil {
-      def HttpURLConnection connection = apiUrl.openConnection()
-      if (githubToken != null && githubToken.length() > 0) {
-        connection.setRequestProperty("Authorization", "Bearer ${githubToken}")
-      }
-
-      connection.setRequestMethod("GET")
-      connection.setDoOutput(true)
-      connection.connect()
-
-      def rs
-      def code
-
-      try {
-        rs = new JsonSlurper().parse(new InputStreamReader(connection.getInputStream(), "UTF-8"))
-
-        code = connection.getResponseCode()
-      } catch (err) {
-        echo "CI checks have not passed yet so waiting before merging"
-      } finally {
-        connection.disconnect()
-      }
-
-      if (rs == null) {
-        echo "Error getting commit status, are CI builds enabled for this PR?"
-        return false
-      }
-      if (rs != null && rs.state == 'success') {
-        return true
-      } else {
-        echo "Commit status is ${rs.state}.  Waiting to merge"
-        return false
-      }
+      return JXDSLUtils.checkIfCommitIsSuccessful(project, ref, githubToken)
     }
   }
 
-  def getGithubBranch(project, id, githubToken) {
-
-    def apiUrl = new URL("https://api.github.com/repos/${project}/pulls/${id}")
-    def HttpURLConnection connection = apiUrl.openConnection()
-    if (githubToken != null && githubToken.length() > 0) {
-      connection.setRequestProperty("Authorization", "Bearer ${githubToken}")
-    }
-
-    connection.setRequestMethod("GET")
-    connection.setDoOutput(true)
-    connection.connect()
-    try {
-      def rs = new JsonSlurper().parse(new InputStreamReader(connection.getInputStream(), "UTF-8"))
-      def branch = rs.head.ref
-      echo "${branch}"
-      return branch
-    } catch (err) {
-      echo "Error while fetching the github branch"
-    } finally {
-      if (connection) {
-        connection.disconnect()
-      }
-    }
+  def getGithubBranch(project, id, String gitHubToken = getGitHubToken()) {
+    return JXDSLUtils.getGithubBranch(project, id, githubToken)
   }
 
-  def mergePR(project, id) {
-    def githubToken = getGitHubToken()
+  def mergePR(project, id, String githubToken = getGitHubToken()) {
     def branch = getGithubBranch(project, id, githubToken)
-    waitUntilSuccessStatus(project, branch)
+    waitUntilSuccessStatus(project, branch, githubToken)
 
-    def apiUrl = new URL("https://api.github.com/repos/${project}/pulls/${id}/merge")
-
-    def HttpURLConnection connection = apiUrl.openConnection()
-    if (githubToken.length() > 0) {
-      connection.setRequestProperty("Authorization", "Bearer ${githubToken}")
-    }
-    connection.setRequestMethod("PUT")
-    connection.setDoOutput(true)
-    connection.connect()
-
-    // execute the request
-    def rs
     try {
-      rs = new JsonSlurper().parse(new InputStreamReader(connection.getInputStream(), "UTF-8"))
-
-      def code = connection.getResponseCode()
-
-      if (code != 200) {
-        if (code == 405) {
-          script.error "${project} PR ${id} not merged.  ${rs.message}"
-        } else {
-          script.error "${project} PR ${id} not merged.  GitHub API Response code: ${code}"
-        }
-      } else {
-        echo "${project} PR ${id} ${rs.message}"
-      }
+      JXDSLUtils.mergePR(project, id, githubToken)
     } catch (err) {
-      // if merge failed try to squash and merge
-      connection = null
-      rs = null
       squashAndMerge(project, id)
-    } finally {
-      if (connection) {
-        connection.disconnect()
-        connection = null
-      }
-      rs = null
+      script.error("${err.message}")
     }
   }
 
-  def squashAndMerge(project, id) {
-    def githubToken = getGitHubToken()
-    def apiUrl = new URL("https://api.github.com/repos/${project}/pulls/${id}/merge")
-
-    def HttpURLConnection connection = apiUrl.openConnection()
-    if (githubToken.length() > 0) {
-      connection.setRequestProperty("Authorization", "Bearer ${githubToken}")
-    }
-    connection.setRequestMethod("PUT")
-    connection.setDoOutput(true)
-    connection.connect()
-    def body = "{\"merge_method\":\"squash\"}"
-
-    def rs
+  def squashAndMerge(project, id, String githubToken = getGitHubToken()) {
     try {
-      OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())
-      writer.write(body)
-      writer.flush()
-
-      rs = new JsonSlurper().parse(new InputStreamReader(connection.getInputStream(), "UTF-8"))
-      def code = connection.getResponseCode()
-
-      if (code != 200) {
-        if (code == 405) {
-          script.error "${project} PR ${id} not merged.  ${rs.message}"
-        } else {
-          script.error "${project} PR ${id} not merged.  GitHub API Response code: ${code}"
-        }
-      } else {
-        echo "${project} PR ${id} ${rs.message}"
-      }
-    } finally {
-      connection.disconnect()
-      connection = null
-      rs = null
+      JXDSLUtils.squashAndMerge(project, id, githubToken)
+    } catch (Exception e) {
+      script.error("${e.message}")
     }
   }
 
-  def addCommentToPullRequest(comment, pr, project) {
-    def githubToken = getGitHubToken()
-    def apiUrl = new URL("https://api.github.com/repos/${project}/issues/${pr}/comments")
-    echo "adding ${comment} to ${apiUrl}"
+  def addCommentToPullRequest(comment, pr, project, String githubToken = getGitHubToken()) {
     try {
-      def HttpURLConnection connection = apiUrl.openConnection()
-      if (githubToken.length() > 0) {
-        connection.setRequestProperty("Authorization", "Bearer ${githubToken}")
-      }
-      connection.setRequestMethod("POST")
-      connection.setDoOutput(true)
-      connection.connect()
-
-      def body = "{\"body\":\"${comment}\"}"
-
-      OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())
-      writer.write(body)
-      writer.flush()
-
-      // execute the POST request
-      new InputStreamReader(connection.getInputStream())
-
-      connection.disconnect()
+      JXDSLUtils.addCommentToPullRequest(comment, pr, project, githubToken)
     } catch (err) {
       script.error "ERROR  ${err}"
     }
   }
 
-  def addMergeCommentToPullRequest(String pr, String project) {
-    def githubToken = getGitHubToken()
-    def apiUrl = new URL("https://api.github.com/repos/${project}/issues/${pr}/comments")
-    echo "merge PR using comment sent to ${apiUrl}"
+  def addMergeCommentToPullRequest(String pr, String project, String githubToken = getGitHubToken()) {
     try {
-      def HttpURLConnection connection = apiUrl.openConnection()
-      if (githubToken.length() > 0) {
-        connection.setRequestProperty("Authorization", "Bearer ${githubToken}")
-      }
-      connection.setRequestMethod("POST")
-      connection.setDoOutput(true)
-      connection.connect()
-
-      def body = '{"body":"[merge]"}'
-
-      OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())
-      writer.write(body)
-      writer.flush()
-
-      // execute the POST request
-      new InputStreamReader(connection.getInputStream())
-
-      connection.disconnect()
+      JXDSLUtils.addMergeCommentToPullRequest(pr, project, githubToken)
     } catch (err) {
       script.error "ERROR  ${err}"
     }
@@ -647,123 +392,20 @@ class CommonFunctions {
     return url.trim()
   }
 
-  def isAuthorCollaborator(githubToken, project) {
-
-    if (!githubToken) {
-
-      githubToken = getGitHubToken()
-
-      if (!githubToken) {
-        echo "No GitHub api key found so trying annonynous GitHub api call"
-      }
-    }
-    if (!project) {
-      project = getGitHubProject()
-    }
-
+  def isAuthorCollaborator(String githubToken = getGitHubToken(), String project = getGitHubProject()) {
     def changeAuthor = script.getProperty('env').CHANGE_AUTHOR
-    if (!changeAuthor) {
-      script.error "No commit author found.  Is this a pull request pipeline?"
-    }
-    echo "Checking if user ${changeAuthor} is a collaborator on ${project}"
-
-    def apiUrl = new URL("https://api.github.com/repos/${project}/collaborators/${changeAuthor}")
-
-    def HttpURLConnection connection = apiUrl.openConnection()
-    if (githubToken != null && githubToken.length() > 0) {
-      connection.setRequestProperty("Authorization", "Bearer ${githubToken}")
-    }
-    connection.setRequestMethod("GET")
-    connection.setDoOutput(true)
-
     try {
-      connection.connect()
-      new InputStreamReader(connection.getInputStream(), "UTF-8")
-      return true
-    } catch (FileNotFoundException e1) {
-      return false
-    } finally {
-      connection.disconnect()
+      return JXDSLUtils.isAuthorCollaborator(changeAuthor, githubToken, project)
+    } catch (Exception e) {
+      script.error("${e.message}")
     }
-
-    script.error "Error checking if user ${changeAuthor} is a collaborator on ${project}.  GitHub API Response code: ${code}"
-
   }
 
-  def getUrlAsString(urlString) {
+  // getUrlAsString moved to JXDSLUtils
 
-    def url = new URL(urlString)
-    def scan
-    def response
-    echo "getting string from URL: ${url}"
+  def drop(String pr, String project, String githubToken = getGitHubToken()) {
     try {
-      scan = new Scanner(url.openStream(), "UTF-8")
-      response = scan.useDelimiter("\\A").next()
-    } finally {
-      scan.close()
-    }
-    return response
-  }
-
-
-  def drop(String pr, String project) {
-    def githubToken = getGitHubToken()
-    def apiUrl = new URL("https://api.github.com/repos/${project}/pulls/${pr}")
-    def branch
-    HttpURLConnection connection
-    OutputStreamWriter writer
-    echo "closing PR ${apiUrl}"
-
-    try {
-      connection = apiUrl.openConnection()
-      if (githubToken.length() > 0) {
-        connection.setRequestProperty("Authorization", "Bearer ${githubToken}")
-      }
-      connection.setRequestMethod("POST")
-      connection.setDoOutput(true)
-      connection.connect()
-
-      def body = '''
-    {
-      "body": "release aborted",
-      "state": "closed"
-    }
-    '''
-
-      writer = new OutputStreamWriter(connection.getOutputStream())
-      writer.write(body)
-      writer.flush()
-
-      // execute the POST request
-      def rs = new JsonSlurper().parse(new InputStreamReader(connection.getInputStream(), "UTF-8"))
-
-      connection.disconnect()
-
-      branchName = rs.head.ref
-
-    } catch (err) {
-      script.error "ERROR  ${err}"
-    }
-
-    try {
-      apiUrl = new URL("https://api.github.com/repos/${project}/git/refs/heads/${branchName}")
-      connection = apiUrl.openConnection()
-      if (githubToken.length() > 0) {
-        connection.setRequestProperty("Authorization", "Bearer ${githubToken}")
-      }
-      connection.setRequestMethod("DELETE")
-      connection.setDoOutput(true)
-      connection.connect()
-
-      writer = new OutputStreamWriter(connection.getOutputStream())
-      writer.write(body)
-      writer.flush()
-
-      // execute the POST request
-      new InputStreamReader(connection.getInputStream())
-
-      connection.disconnect()
-
+      JXDSLUtils.drop(pr, project, githubToken)
     } catch (err) {
       script.error "ERROR  ${err}"
     }
