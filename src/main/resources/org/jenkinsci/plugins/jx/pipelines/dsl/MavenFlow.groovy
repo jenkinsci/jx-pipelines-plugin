@@ -92,7 +92,7 @@ class MavenFlow {
     } catch (e) {
       logError(e)
     }
-    if (flag && flag.booleanValue()) {
+    if (flag && Boolean.parseBoolean("${flag}")) {
       return true;
     }
     String organisation = arguments.getCdOrganisation();

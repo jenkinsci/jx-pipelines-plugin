@@ -42,16 +42,10 @@ public abstract class PipelineDSLGlobal extends GlobalVariable {
     protected static Whitelist createStaticWhitelist(String... lines) throws IOException {
         List<String> list = new ArrayList<>();
         list.addAll(Arrays.asList(
-                // boolean utils
-                "method java.lang.Boolean booleanValue",
-
                 // string utils
                 "staticMethod io.fabric8.utils.Strings isNotBlank java.lang.String",
                 "staticMethod io.fabric8.utils.Strings isNullOrBlank java.lang.String",
-                "staticMethod io.fabric8.utils.Strings notEmpty java.lang.String",
-
-                "method java.util.Map$Entry getKey",
-                "method java.util.Map$Entry getValue"
+                "staticMethod io.fabric8.utils.Strings notEmpty java.lang.String"
         ));
 
         if (lines != null) {
