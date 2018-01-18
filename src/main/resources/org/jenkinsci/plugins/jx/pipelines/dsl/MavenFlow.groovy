@@ -1,6 +1,6 @@
 package org.jenkinsci.plugins.jx.pipelines.dsl
 
-import io.fabric8.utils.Strings
+import hudson.Util
 import org.jenkinsci.plugins.jx.pipelines.FailedBuildException
 import org.jenkinsci.plugins.jx.pipelines.ShellFacade
 import org.jenkinsci.plugins.jx.pipelines.Utils
@@ -98,11 +98,11 @@ class MavenFlow {
     String organisation = arguments.getCdOrganisation();
     List<String> cdBranches = arguments.getCdBranches();
     //echo("invoked with organisation " + organisation + " branches " + cdBranches);
-    if (cdBranches != null && cdBranches.size() > 0 && Strings.notEmpty(organisation)) {
+    if (cdBranches != null && cdBranches.size() > 0 && Util.fixEmpty(organisation) != null) {
       def branch = utils.getBranch()
       if (cdBranches.contains(branch)) {
         String gitUrl = arguments.getGitCloneUrl()
-        if (Strings.isNotBlank(gitUrl)) {
+        if (Util.fixEmptyAndTrim(gitUrl) != null) {
           GitRepositoryInfo info = GitHelper.parseGitRepositoryInfo(gitUrl);
           if (info != null) {
             boolean answer = organisation.equals(info.getOrganisation());
@@ -155,7 +155,7 @@ class MavenFlow {
   Boolean cdPipeline(MavenFlowArguments arguments) {
     echo("Performing CD pipeline");
     String gitCloneUrl = arguments.getGitCloneUrl();
-    if (Strings.isNullOrBlank(gitCloneUrl)) {
+    if (Util.fixEmptyAndTrim(gitCloneUrl) == null) {
       logError("No gitCloneUrl configured for this pipeline!");
       throw new FailedBuildException("No gitCloneUrl configured for this pipeline!");
     }
@@ -196,10 +196,10 @@ class MavenFlow {
       dir = p.toString()
     }
     String text = getGitConfigFile(dir);
-    if (Strings.isNullOrBlank(text)) {
+    if (Util.fixEmptyAndTrim(text) == null) {
       text = script.readFile(".git/config");
     }
-    if (Strings.notEmpty(text)) {
+    if (Util.fixEmpty(text) != null) {
       return GitHelper.extractGitUrl(text);
     }
     return null;

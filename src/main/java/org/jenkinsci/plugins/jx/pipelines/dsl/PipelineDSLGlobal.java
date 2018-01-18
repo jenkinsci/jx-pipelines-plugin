@@ -16,51 +16,20 @@
 package org.jenkinsci.plugins.jx.pipelines.dsl;
 
 import groovy.lang.Binding;
-import hudson.Extension;
 import hudson.ExtensionList;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.jx.pipelines.arguments.JXPipelinesArgumentsDescriptor;
 import org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStep;
-import org.jenkinsci.plugins.scriptsecurity.sandbox.Whitelist;
-import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.ProxyWhitelist;
-import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.StaticWhitelist;
 import org.jenkinsci.plugins.workflow.cps.CpsScript;
 import org.jenkinsci.plugins.workflow.cps.CpsThread;
 import org.jenkinsci.plugins.workflow.cps.GlobalVariable;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public abstract class PipelineDSLGlobal extends GlobalVariable {
-
-    protected static Whitelist createStaticWhitelist(String... lines) throws IOException {
-        List<String> list = new ArrayList<>();
-        list.addAll(Arrays.asList(
-                // string utils
-                "staticMethod io.fabric8.utils.Strings isNotBlank java.lang.String",
-                "staticMethod io.fabric8.utils.Strings isNullOrBlank java.lang.String",
-                "staticMethod io.fabric8.utils.Strings notEmpty java.lang.String"
-        ));
-
-        if (lines != null) {
-            list.addAll(Arrays.asList(lines));
-        }
-        return new StaticWhitelist(list);
-    }
-
-    @Extension
-    public static class JXPipelinesWhitelist extends ProxyWhitelist {
-        public JXPipelinesWhitelist() throws IOException {
-            super(createStaticWhitelist());
-        }
-    }
-
 
     public abstract String getFunctionName();
 
