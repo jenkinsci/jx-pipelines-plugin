@@ -93,9 +93,9 @@
     <structs.version>1.10</structs.version>
     <workflow-cps.version>2.41</workflow-cps.version>
     <workflow-durable-task-step.version>2.17</workflow-durable-task-step.version>
-    <workflow-step-api-plugin.version>2.13</workflow-step-api-plugin.version>
+    <workflow-step-api-plugin.version>2.14</workflow-step-api-plugin.version>
     <workflow-support.version>2.16</workflow-support.version>
-
+    <declarative.version>1.2.6</declarative.version>
 
     <workflow-aggregator.version>2.5</workflow-aggregator.version>
     <!--
@@ -296,6 +296,11 @@
       <artifactId>bridge-method-annotation</artifactId>
       <version>1.17</version>
     </dependency>
+    <dependency>
+      <groupId>org.jenkinsci.plugins</groupId>
+      <artifactId>pipeline-model-extensions</artifactId>
+      <version>1.2.6</version>
+    </dependency>
 
     <!-- Test dependencies -->
     <!--
@@ -353,17 +358,24 @@
       <classifier>tests</classifier>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.jenkins-ci.main</groupId>
+      <artifactId>jenkins-test-harness-tools</artifactId>
+      <version>2.0</version>
+      <scope>test</scope>
+    </dependency>
 
     <dependency>
       <groupId>org.jenkinsci.plugins</groupId>
       <artifactId>pipeline-model-definition</artifactId>
-      <version>1.2.4</version>
+      <version>${declarative.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.jenkinsci.plugins</groupId>
-      <artifactId>pipeline-model-declarative-agent</artifactId>
-      <version>1.1.1</version>
+      <artifactId>pipeline-model-definition</artifactId>
+      <version>${declarative.version}</version>
+      <classifier>tests</classifier>
       <scope>test</scope>
     </dependency>
     <dependency>

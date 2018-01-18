@@ -16,9 +16,11 @@
 package org.jenkinsci.plugins.jx.pipelines.dsl;
 
 import hudson.Extension;
-import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.ProxyWhitelist;
+import hudson.ExtensionList;
+import org.jenkinsci.plugins.jx.pipelines.arguments.JXPipelinesArgumentsDescriptor;
+import org.jenkinsci.plugins.jx.pipelines.arguments.WaitUntilArtifactSyncedArguments;
 
-import java.io.IOException;
+import javax.annotation.CheckForNull;
 
 @Extension
 public class WaitUntilArtifactSyncedWithCentralDSL extends PipelineDSLGlobal {
@@ -28,11 +30,9 @@ public class WaitUntilArtifactSyncedWithCentralDSL extends PipelineDSLGlobal {
         return "waitUntilArtifactSyncedWithCentral";
     }
 
-    @Extension
-    public static class MiscWhitelist extends ProxyWhitelist {
-        public MiscWhitelist() throws IOException {
-            super(createStaticWhitelist(), new JXPipelinesWhitelist());
-        }
+    @Override
+    @CheckForNull
+    public JXPipelinesArgumentsDescriptor getArgumentsType() {
+        return ExtensionList.lookup(JXPipelinesArgumentsDescriptor.class).get(WaitUntilArtifactSyncedArguments.DescriptorImpl.class);
     }
-
 }

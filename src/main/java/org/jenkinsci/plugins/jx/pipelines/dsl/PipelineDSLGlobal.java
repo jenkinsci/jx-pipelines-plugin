@@ -16,17 +16,21 @@
 package org.jenkinsci.plugins.jx.pipelines.dsl;
 
 import groovy.lang.Binding;
-import groovy.lang.GroovyCodeSource;
+import hudson.Extension;
+import hudson.ExtensionList;
 import org.apache.commons.lang.StringUtils;
+import org.jenkinsci.plugins.jx.pipelines.arguments.JXPipelinesArgumentsDescriptor;
+import org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStep;
 import org.jenkinsci.plugins.scriptsecurity.sandbox.Whitelist;
+import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.ProxyWhitelist;
 import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.StaticWhitelist;
 import org.jenkinsci.plugins.workflow.cps.CpsScript;
 import org.jenkinsci.plugins.workflow.cps.CpsThread;
 import org.jenkinsci.plugins.workflow.cps.GlobalVariable;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -54,7 +58,26 @@ public abstract class PipelineDSLGlobal extends GlobalVariable {
         return new StaticWhitelist(list);
     }
 
+    @Extension
+    public static class MiscWhitelist extends ProxyWhitelist {
+        public MiscWhitelist() throws IOException {
+            super(createStaticWhitelist(), new JXPipelinesWhitelist());
+        }
+    }
+
+
     public abstract String getFunctionName();
+
+    @CheckForNull
+    public String validate(ModelASTStep step) {
+        // No-op by default.
+        return null;
+    }
+
+    @CheckForNull
+    public JXPipelinesArgumentsDescriptor getArgumentsType() {
+        return null;
+    }
 
     @Override
     public String getName() {
@@ -83,5 +106,16 @@ public abstract class PipelineDSLGlobal extends GlobalVariable {
                 .newInstance(script);
         binding.setVariable(functionName, pipelineDSL);
         return pipelineDSL;
+    }
+
+    @CheckForNull
+    public static PipelineDSLGlobal getGlobalForName(@Nonnull String name) {
+        for (PipelineDSLGlobal g : ExtensionList.lookup(PipelineDSLGlobal.class)) {
+            if (name.equals(g.getFunctionName())) {
+                return g;
+            }
+        }
+
+        return null;
     }
 }
