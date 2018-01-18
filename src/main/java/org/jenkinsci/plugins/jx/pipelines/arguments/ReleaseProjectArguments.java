@@ -20,7 +20,6 @@ import hudson.Extension;
 import io.fabric8.utils.Strings;
 import io.jenkins.functions.Argument;
 import org.jenkinsci.Symbol;
-import org.jenkinsci.plugins.jx.pipelines.StepExtension;
 import org.jenkinsci.plugins.jx.pipelines.helpers.ConfigHelper;
 import org.jenkinsci.plugins.jx.pipelines.model.ServiceConstants;
 import org.jenkinsci.plugins.jx.pipelines.model.StagedProjectInfo;
@@ -73,11 +72,11 @@ public class ReleaseProjectArguments extends JXPipelinesArguments<ReleaseProject
     @Argument
     private String updateNextDevelopmentVersionArguments = "";
 
-    private StepExtension promoteArtifactsExtension;
-    private StepExtension promoteImagesExtension;
-    private StepExtension tagImagesExtension;
-    private StepExtension waitUntilPullRequestMergedExtension;
-    private StepExtension waitUntilArtifactSyncedExtension;
+    private PromoteArtifactsArguments promoteArtifacts;
+    private PromoteImagesArguments promoteImages;
+    private TagImagesArguments tagImages;
+    private WaitUntilPullRequestMergedArguments waitUntilPullRequestMerged;
+    private WaitUntilArtifactSyncedArguments waitUntilArtifactSynced;
 
     @DataBoundConstructor
     public ReleaseProjectArguments() {
@@ -115,7 +114,7 @@ public class ReleaseProjectArguments extends JXPipelinesArguments<ReleaseProject
      * Returns the arguments for invoking {@link PromoteArtifactsArguments}
      */
     public PromoteArtifactsArguments createPromoteArtifactsArguments() {
-        return new PromoteArtifactsArguments(getProject(), getReleaseVersion(), getRepoIds(), getContainerName(), isHelmPush(), isUpdateNextDevelopmentVersion(), getUpdateNextDevelopmentVersionArguments(), getPromoteArtifactsExtension());
+        return new PromoteArtifactsArguments(getProject(), getReleaseVersion(), getRepoIds(), getContainerName(), isHelmPush(), isUpdateNextDevelopmentVersion(), getUpdateNextDevelopmentVersionArguments(), getPromoteArtifacts());
     }
 
     /**
@@ -126,7 +125,7 @@ public class ReleaseProjectArguments extends JXPipelinesArguments<ReleaseProject
         String org = getDockerOrganisation();
         String toRegistry = getPromoteToDockerRegistry();
         List<String> images = getPromoteDockerImages();
-        return new PromoteImagesArguments(getReleaseVersion(), org, toRegistry, images, getPromoteImagesExtension());
+        return new PromoteImagesArguments(getReleaseVersion(), org, toRegistry, images, getPromoteImages());
     }
 
     /**
@@ -134,7 +133,7 @@ public class ReleaseProjectArguments extends JXPipelinesArguments<ReleaseProject
      */
     public TagImagesArguments createTagImagesArguments() {
         if (extraImagesToTag != null && !extraImagesToTag.isEmpty()) {
-            return new TagImagesArguments(getReleaseVersion(), extraImagesToTag, getTagImagesExtension());
+            return new TagImagesArguments(getReleaseVersion(), extraImagesToTag, getTagImages());
         } else {
             return null;
         }
@@ -146,14 +145,14 @@ public class ReleaseProjectArguments extends JXPipelinesArguments<ReleaseProject
      * @param pullRequestId
      */
     public WaitUntilPullRequestMergedArguments createWaitUntilPullRequestMergedArguments(GHPullRequest pullRequestId) {
-        return new WaitUntilPullRequestMergedArguments(pullRequestId.getId(), getProject(), getWaitUntilPullRequestMergedExtension());
+        return new WaitUntilPullRequestMergedArguments(pullRequestId.getId(), getProject(), getWaitUntilPullRequestMerged());
     }
 
     /**
      * Returns the arguments for invoking {@link WaitUntilArtifactSyncedArguments}
      */
     public WaitUntilArtifactSyncedArguments createWaitUntilArtifactSyncedWithCentralArguments() {
-        WaitUntilArtifactSyncedArguments arguments = new WaitUntilArtifactSyncedArguments(groupId, artifactIdToWaitFor, getReleaseVersion(), getWaitUntilArtifactSyncedExtension());
+        WaitUntilArtifactSyncedArguments arguments = new WaitUntilArtifactSyncedArguments(groupId, artifactIdToWaitFor, getReleaseVersion(), getWaitUntilArtifactSynced());
         if (Strings.notEmpty(artifactExtensionToWaitFor)) {
             arguments.setExtension(artifactExtensionToWaitFor);
         }
@@ -310,49 +309,50 @@ public class ReleaseProjectArguments extends JXPipelinesArguments<ReleaseProject
         this.updateNextDevelopmentVersionArguments = updateNextDevelopmentVersionArguments;
     }
 
-    public StepExtension getPromoteArtifactsExtension() {
-        return promoteArtifactsExtension;
+
+    public PromoteArtifactsArguments getPromoteArtifacts() {
+        return promoteArtifacts;
     }
 
     @DataBoundSetter
-    public void setPromoteArtifactsExtension(StepExtension promoteArtifactsExtension) {
-        this.promoteArtifactsExtension = promoteArtifactsExtension;
+    public void setPromoteArtifacts(PromoteArtifactsArguments promoteArtifacts) {
+        this.promoteArtifacts = promoteArtifacts;
     }
 
-    public StepExtension getPromoteImagesExtension() {
-        return promoteImagesExtension;
-    }
-
-    @DataBoundSetter
-    public void setPromoteImagesExtension(StepExtension promoteImagesExtension) {
-        this.promoteImagesExtension = promoteImagesExtension;
-    }
-
-    public StepExtension getTagImagesExtension() {
-        return tagImagesExtension;
+    public PromoteImagesArguments getPromoteImages() {
+        return promoteImages;
     }
 
     @DataBoundSetter
-    public void setTagImagesExtension(StepExtension tagImagesExtension) {
-        this.tagImagesExtension = tagImagesExtension;
+    public void setPromoteImages(PromoteImagesArguments promoteImagesExtension) {
+        this.promoteImages = promoteImagesExtension;
     }
 
-    public StepExtension getWaitUntilPullRequestMergedExtension() {
-        return waitUntilPullRequestMergedExtension;
-    }
-
-    @DataBoundSetter
-    public void setWaitUntilPullRequestMergedExtension(StepExtension waitUntilPullRequestMergedExtension) {
-        this.waitUntilPullRequestMergedExtension = waitUntilPullRequestMergedExtension;
-    }
-
-    public StepExtension getWaitUntilArtifactSyncedExtension() {
-        return waitUntilArtifactSyncedExtension;
+    public TagImagesArguments getTagImages() {
+        return tagImages;
     }
 
     @DataBoundSetter
-    public void setWaitUntilArtifactSyncedExtension(StepExtension waitUntilArtifactSyncedExtension) {
-        this.waitUntilArtifactSyncedExtension = waitUntilArtifactSyncedExtension;
+    public void setTagImages(TagImagesArguments tagImagesExtension) {
+        this.tagImages = tagImagesExtension;
+    }
+
+    public WaitUntilPullRequestMergedArguments getWaitUntilPullRequestMerged() {
+        return waitUntilPullRequestMerged;
+    }
+
+    @DataBoundSetter
+    public void setWaitUntilPullRequestMerged(WaitUntilPullRequestMergedArguments waitUntilPullRequestMergedExtension) {
+        this.waitUntilPullRequestMerged = waitUntilPullRequestMergedExtension;
+    }
+
+    public WaitUntilArtifactSyncedArguments getWaitUntilArtifactSynced() {
+        return waitUntilArtifactSynced;
+    }
+
+    @DataBoundSetter
+    public void setWaitUntilArtifactSynced(WaitUntilArtifactSyncedArguments waitUntilArtifactSyncedExtension) {
+        this.waitUntilArtifactSynced = waitUntilArtifactSyncedExtension;
     }
 
     @Extension @Symbol("releaseProject")

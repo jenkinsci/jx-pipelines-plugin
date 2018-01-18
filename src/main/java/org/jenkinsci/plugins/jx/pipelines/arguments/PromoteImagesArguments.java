@@ -20,7 +20,6 @@ import com.google.common.base.Strings;
 import hudson.Extension;
 import io.jenkins.functions.Argument;
 import org.jenkinsci.Symbol;
-import org.jenkinsci.plugins.jx.pipelines.StepExtension;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
@@ -29,7 +28,7 @@ import java.util.List;
 
 /**
  */
-public class PromoteImagesArguments extends JXPipelinesArguments<PromoteImagesArguments> {
+public class PromoteImagesArguments extends StepContainer<PromoteImagesArguments> {
     private static final long serialVersionUID = 1L;
 
     @Argument
@@ -43,18 +42,16 @@ public class PromoteImagesArguments extends JXPipelinesArguments<PromoteImagesAr
     @Argument
     private String containerName = "maven";
 
-    private StepExtension stepExtension;
-
     @DataBoundConstructor
     public PromoteImagesArguments() {
     }
 
-    public PromoteImagesArguments(String tag, String org, String toRegistry, List<String> images, StepExtension stepExtension) {
+    public PromoteImagesArguments(String tag, String org, String toRegistry, List<String> images, PromoteImagesArguments original) {
         this.tag = tag;
         this.org = org;
         this.toRegistry = toRegistry;
         this.images = images;
-        this.stepExtension = stepExtension;
+        copyFrom(original);
     }
 
     /**
@@ -115,15 +112,6 @@ public class PromoteImagesArguments extends JXPipelinesArguments<PromoteImagesAr
     @DataBoundSetter
     public void setContainerName(String containerName) {
         this.containerName = containerName;
-    }
-
-    public StepExtension getStepExtension() {
-        return stepExtension;
-    }
-
-    @DataBoundSetter
-    public void setStepExtension(StepExtension stepExtension) {
-        this.stepExtension = stepExtension;
     }
 
     @Extension @Symbol("promoteImages")

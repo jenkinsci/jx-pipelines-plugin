@@ -19,7 +19,6 @@ package org.jenkinsci.plugins.jx.pipelines.arguments;
 import hudson.Extension;
 import io.jenkins.functions.Argument;
 import org.jenkinsci.Symbol;
-import org.jenkinsci.plugins.jx.pipelines.StepExtension;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
@@ -28,7 +27,7 @@ import java.util.List;
 
 /**
  */
-public class PromoteArtifactsArguments extends JXPipelinesArguments<PromoteArtifactsArguments> {
+public class PromoteArtifactsArguments extends StepContainer<PromoteArtifactsArguments> {
     private static final long serialVersionUID = 1L;
 
     @Argument
@@ -46,8 +45,6 @@ public class PromoteArtifactsArguments extends JXPipelinesArguments<PromoteArtif
     @Argument
     private String updateNextDevelopmentVersionArguments = "";
 
-    private StepExtension stepExtension;
-
     @DataBoundConstructor
     public PromoteArtifactsArguments() {
     }
@@ -63,7 +60,7 @@ public class PromoteArtifactsArguments extends JXPipelinesArguments<PromoteArtif
         this.repoIds = repoIds;
     }
 
-    public PromoteArtifactsArguments(String project, String version, List<String> repoIds, String containerName, boolean helmPush, boolean updateNextDevelopmentVersion, String updateNextDevelopmentVersionArguments, StepExtension stepExtension) {
+    public PromoteArtifactsArguments(String project, String version, List<String> repoIds, String containerName, boolean helmPush, boolean updateNextDevelopmentVersion, String updateNextDevelopmentVersionArguments, PromoteArtifactsArguments original) {
         this.project = project;
         this.version = version;
         this.repoIds = repoIds;
@@ -71,7 +68,7 @@ public class PromoteArtifactsArguments extends JXPipelinesArguments<PromoteArtif
         this.helmPush = helmPush;
         this.updateNextDevelopmentVersion = updateNextDevelopmentVersion;
         this.updateNextDevelopmentVersionArguments = updateNextDevelopmentVersionArguments;
-        this.stepExtension = stepExtension;
+        copyFrom(original);
     }
 
     public String getProject() {
@@ -135,15 +132,6 @@ public class PromoteArtifactsArguments extends JXPipelinesArguments<PromoteArtif
     @DataBoundSetter
     public void setUpdateNextDevelopmentVersionArguments(String updateNextDevelopmentVersionArguments) {
         this.updateNextDevelopmentVersionArguments = updateNextDevelopmentVersionArguments;
-    }
-
-    public StepExtension getStepExtension() {
-        return stepExtension;
-    }
-
-    @DataBoundSetter
-    public void setStepExtension(StepExtension stepExtension) {
-        this.stepExtension = stepExtension;
     }
 
     @Extension @Symbol("promoteArtifacts")

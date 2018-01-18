@@ -3,13 +3,10 @@ package org.jenkinsci.plugins.jx.pipelines.dsl
 import io.fabric8.utils.Strings
 import org.jenkinsci.plugins.jx.pipelines.FailedBuildException
 import org.jenkinsci.plugins.jx.pipelines.ShellFacade
-import org.jenkinsci.plugins.jx.pipelines.StepExtension
 import org.jenkinsci.plugins.jx.pipelines.Utils
-import org.jenkinsci.plugins.jx.pipelines.arguments.JXPipelinesArguments
 import org.jenkinsci.plugins.jx.pipelines.arguments.MavenFlowArguments
 import org.jenkinsci.plugins.jx.pipelines.arguments.ReleaseProjectArguments
 import org.jenkinsci.plugins.jx.pipelines.arguments.StageProjectArguments
-import org.jenkinsci.plugins.jx.pipelines.helpers.ConfigHelper
 import org.jenkinsci.plugins.jx.pipelines.helpers.GitHelper
 import org.jenkinsci.plugins.jx.pipelines.helpers.GitRepositoryInfo
 import org.jenkinsci.plugins.jx.pipelines.model.StagedProjectInfo
@@ -25,19 +22,7 @@ class MavenFlow {
     this.script = script
   }
 
-  def call(body) {
-    Map config = [:]
-
-    MavenFlowArguments arguments = new MavenFlowArguments()
-    addPropertyFunctions(config, arguments)
-
-    if (body) {
-      def bodyBlock = new BodyAssigner(config)
-      body.delegate = bodyBlock
-      body.resolveStrategy = Closure.DELEGATE_ONLY
-      body.call()
-      arguments = bodyBlock.argumentInstance(MavenFlowArguments.class)
-    }
+  def call(MavenFlowArguments arguments) {
 
     echo "mavenFlow ${arguments}"
 
@@ -298,37 +283,4 @@ class MavenFlow {
     echo "WARNING: ${message}"
   }
 
-  def createExtensionFunction(StepExtension extension) {
-    return { stepBody ->
-      stepBody.resolveStrategy = Closure.DELEGATE_FIRST
-      stepBody.delegate = extension
-      stepBody()
-    }
-  }
-
-  def addPropertyFunctions(Map config, JXPipelinesArguments bean) {
-    def extensionSuffix = "Extension"
-
-    ConfigHelper.getArgumentFields((Class<? extends JXPipelinesArguments>)bean.getClass()).each { n, k ->
-      if (StepExtension.class.isAssignableFrom(k) || StepExtension.class == k) {
-        String extKey = n
-        if (extKey.endsWith(extensionSuffix)) {
-          extKey = extKey.substring(0, extKey.length() - extensionSuffix.length())
-        }
-        config[extKey] = [n, createExtensionFunction(new StepExtension())]
-      } else {
-        config[n] = [n, { value -> value }]
-      }
-    }
-  }
-
-  def removeClosures(Map config) {
-    def answer = [:]
-    for (e in config) {
-      if (!(e.value instanceof Closure)) {
-        answer[e.key] = e.value
-      }
-    }
-    return answer
-  }
 }

@@ -33,7 +33,9 @@ import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public abstract class PipelineDSLGlobal extends GlobalVariable {
 
@@ -59,9 +61,9 @@ public abstract class PipelineDSLGlobal extends GlobalVariable {
     }
 
     @Extension
-    public static class MiscWhitelist extends ProxyWhitelist {
-        public MiscWhitelist() throws IOException {
-            super(createStaticWhitelist(), new JXPipelinesWhitelist());
+    public static class JXPipelinesWhitelist extends ProxyWhitelist {
+        public JXPipelinesWhitelist() throws IOException {
+            super(createStaticWhitelist());
         }
     }
 
@@ -110,12 +112,16 @@ public abstract class PipelineDSLGlobal extends GlobalVariable {
 
     @CheckForNull
     public static PipelineDSLGlobal getGlobalForName(@Nonnull String name) {
+        return getGlobalsMap().get(name);
+    }
+
+    @Nonnull
+    public static Map<String,PipelineDSLGlobal> getGlobalsMap() {
+        Map<String,PipelineDSLGlobal> globalMap = new HashMap<>();
         for (PipelineDSLGlobal g : ExtensionList.lookup(PipelineDSLGlobal.class)) {
-            if (name.equals(g.getFunctionName())) {
-                return g;
-            }
+            globalMap.put(g.getFunctionName(), g);
         }
 
-        return null;
+        return globalMap;
     }
 }

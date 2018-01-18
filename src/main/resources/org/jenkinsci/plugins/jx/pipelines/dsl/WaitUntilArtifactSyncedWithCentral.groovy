@@ -24,7 +24,7 @@ class WaitUntilArtifactSyncedWithCentral {
     def repo = config.repositoryUrl ?: ServiceConstants.MAVEN_CENTRAL
     def ext = config.extension ?: 'jar'
 
-    return flow.doStepExecution(config.stepExtension) {
+    return flow.doStepExecution(config) {
       if (groupId && artifactId && version) {
         echo "waiting for artifact ${groupId}/${artifactId}/${version}/${ext} to be in repo ${repo}"
 

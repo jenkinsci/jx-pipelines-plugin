@@ -24,7 +24,7 @@ class WaitUntilPullRequestMerged {
     def notified = false
 
     // wait until the PR is merged, if there's a merge conflict the notify and wait until PR is finally merged
-    return flow.doStepExecution(config.stepExtension) {
+    return flow.doStepExecution(config) {
       script.waitUntil {
         echo "https://api.github.com/repos/${project}/pulls/${id}"
 

@@ -5,7 +5,7 @@ import hudson.model.Result
 import io.fabric8.kubernetes.api.KubernetesHelper
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
 import io.fabric8.kubernetes.client.KubernetesClient
-import org.jenkinsci.plugins.jx.pipelines.StepExtension
+import org.jenkinsci.plugins.jx.pipelines.arguments.StepContainer
 import org.jenkinsci.plugins.jx.pipelines.helpers.MavenHelpers
 import org.jenkinsci.plugins.workflow.cps.CpsScript
 
@@ -576,28 +576,25 @@ class CommonFunctions {
   }
 
 /** Invokes a step extension on the given closure body */
-  def doStepExecution(StepExtension stepExtension, body) {
-    if (stepExtension == null) {
-      stepExtension = new StepExtension()
-    }
-    if (stepExtension.preBlock instanceof Closure) {
+  def doStepExecution(StepContainer stepExtension, body) {
+    if (stepExtension?.pre instanceof Closure) {
       echo "StepExtension invoking pre steps"
-      invokeStepBlock(stepExtension.preBlock)
+      invokeStepBlock(stepExtension.pre)
     }
     def answer
-    if (stepExtension.stepsBlock instanceof Closure) {
+    if (stepExtension?.steps instanceof Closure) {
       echo "StepExtension invoking replacement steps"
-      answer = invokeStepBlock(stepExtension.stepsBlock)
+      answer = invokeStepBlock(stepExtension.steps)
     } else if (body != null) {
-      if (stepExtension.disabled) {
+      if (stepExtension?.disabled) {
         echo "StepExtension has disabled the steps"
       } else {
         answer = body()
       }
     }
-    if (stepExtension.postBlock instanceof Closure) {
+    if (stepExtension?.post instanceof Closure) {
       echo "StepExtension invoking post steps"
-      invokeStepBlock(stepExtension.postBlock)
+      invokeStepBlock(stepExtension.post)
     }
     return answer
   }
