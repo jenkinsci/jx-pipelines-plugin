@@ -16,9 +16,11 @@
 package org.jenkinsci.plugins.jx.pipelines.dsl;
 
 import hudson.Extension;
-import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.ProxyWhitelist;
+import hudson.ExtensionList;
+import org.jenkinsci.plugins.jx.pipelines.arguments.JXPipelinesArgumentsDescriptor;
+import org.jenkinsci.plugins.jx.pipelines.arguments.TagImagesArguments;
 
-import java.io.IOException;
+import javax.annotation.CheckForNull;
 
 @Extension
 public class TagImagesDSL extends PipelineDSLGlobal {
@@ -28,11 +30,9 @@ public class TagImagesDSL extends PipelineDSLGlobal {
         return "tagImages";
     }
 
-    @Extension
-    public static class MiscWhitelist extends ProxyWhitelist {
-        public MiscWhitelist() throws IOException {
-            super(createStaticWhitelist(), new JXPipelinesWhitelist());
-        }
+    @Override
+    @CheckForNull
+    public JXPipelinesArgumentsDescriptor getArgumentsType() {
+        return ExtensionList.lookup(JXPipelinesArgumentsDescriptor.class).get(TagImagesArguments.DescriptorImpl.class);
     }
-
 }

@@ -25,7 +25,6 @@ import org.kohsuke.stapler.DataBoundSetter;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Positive;
-import java.io.Serializable;
 
 /**
  */

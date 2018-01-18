@@ -16,9 +16,6 @@
 package org.jenkinsci.plugins.jx.pipelines.dsl;
 
 import hudson.Extension;
-import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.ProxyWhitelist;
-
-import java.io.IOException;
 
 @Extension
 public class JXCommandsDSL extends PipelineDSLGlobal {
@@ -27,12 +24,4 @@ public class JXCommandsDSL extends PipelineDSLGlobal {
     public String getFunctionName() {
         return "jxCommands";
     }
-
-    @Extension
-    public static class MiscWhitelist extends ProxyWhitelist {
-        public MiscWhitelist() throws IOException {
-            super(createStaticWhitelist(), new JXPipelinesWhitelist());
-        }
-    }
-
 }
