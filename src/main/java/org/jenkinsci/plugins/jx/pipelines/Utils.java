@@ -395,6 +395,8 @@ public class Utils extends CommandSupport {
         }
     }
 
+    /*
+
     public String findGitCloneURL() {
         String text = getGitConfigFile(getCurrentDir());
         if (Strings.isNullOrBlank(text)) {
@@ -411,7 +413,7 @@ public class Utils extends CommandSupport {
     protected String getGitConfigFile(File dir) {
         String path = new File(dir, ".git/config").getAbsolutePath();
         String text = doReadPath(path);
-/*
+*//*
         String command = "cat " + path;
         try {
             echo("trying: " + command);
@@ -421,7 +423,7 @@ public class Utils extends CommandSupport {
         } catch (Throwable e) {
             error("Failed to invoke `" + command + "` due to " + e, e);
         }
-*/
+*//*
         if (text != null) {
             text = text.trim();
             if (text.length() > 0) {
@@ -433,7 +435,7 @@ public class Utils extends CommandSupport {
             return getGitConfigFile(file);
         }
         return null;
-    }
+    }*/
 
     private String doReadPath(String path) {
         String text = null;

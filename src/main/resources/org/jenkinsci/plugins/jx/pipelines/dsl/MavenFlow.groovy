@@ -201,7 +201,14 @@ class MavenFlow {
   }
 
   String doFindGitCloneURL() {
-    String text = getGitConfigFile(script.pwd());
+    String dir
+    def p = script.pwd()
+    if (p instanceof File) {
+      dir = p.path
+    } else {
+      dir = p.toString()
+    }
+    String text = getGitConfigFile(dir);
     if (Strings.isNullOrBlank(text)) {
       text = script.readFile(".git/config");
     }
@@ -210,7 +217,6 @@ class MavenFlow {
     }
     return null;
   }
-
 
   String getGitConfigFile(String dir) {
     String text = script.readFile("${dir}/.git/config");
