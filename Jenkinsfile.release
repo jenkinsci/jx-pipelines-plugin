@@ -10,6 +10,8 @@ pipeline {
           useStaging true
           useSonatype true
           pauseOnFailure true
+          stageServerId = "maven.jenkins-ci.org"
+          stageRepositoryUrl = "https://repo.jenkins-ci.org/snapshots/"
 
           promoteArtifacts {
             pre {
