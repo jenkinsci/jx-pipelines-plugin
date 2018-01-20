@@ -45,7 +45,7 @@ public class StageProjectArguments extends JXPipelinesArguments<StageProjectArgu
     @Argument
     private String containerName = "maven";
     @Argument
-    private String clientsContainerName = "clients";
+    private String clientsContainerName = "maven";
     @Argument
     private boolean useStaging;
     @Argument

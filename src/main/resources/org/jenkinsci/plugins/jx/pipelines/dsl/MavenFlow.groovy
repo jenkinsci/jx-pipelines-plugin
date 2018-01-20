@@ -45,7 +45,7 @@ class MavenFlow {
       script.checkout script.scm
 
       this.utils = createUtils()
-      def branch = findBranch()
+      def branch = findBranch(arguments.clientsContainerName)
       utils.setBranch(branch)
 
       if (!arguments.gitCloneUrl) {
@@ -178,7 +178,7 @@ class MavenFlow {
     if (!arguments.isDisableGitPush()) {
       String remoteGitCloneUrl = remoteGitCloneUrl(repositoryInfo)
       if (remoteGitCloneUrl != null) {
-        script.container("clients") {
+        script.container(arguments.clientsContainerName) {
           echo "setting remote URL to ${remoteGitCloneUrl}"
           script.sh("git remote set-url origin " + remoteGitCloneUrl);
         }
@@ -194,14 +194,23 @@ class MavenFlow {
   }
 
   String remoteGitCloneUrl(GitRepositoryInfo info) {
+/*
     if (info.getHost().equals("github.com")) {
       return "git@github.com:${info.getOrganisation()}/${info.getName()}.git"
     }
+*/
     return null
   }
 
   String doFindGitCloneURL() {
-    String text = getGitConfigFile(script.pwd());
+    String dir
+    def p = script.pwd()
+    if (p instanceof File) {
+      dir = p.path
+    } else {
+      dir = p.toString()
+    }
+    String text = getGitConfigFile(dir);
     if (Strings.isNullOrBlank(text)) {
       text = script.readFile(".git/config");
     }
@@ -210,7 +219,6 @@ class MavenFlow {
     }
     return null;
   }
-
 
   String getGitConfigFile(String dir) {
     String text = script.readFile("${dir}/.git/config");
@@ -226,10 +234,10 @@ class MavenFlow {
     return null;
   }
 
-  String findBranch() {
+  String findBranch(containerName) {
     def branch = script.getProperty('env').BRANCH_NAME
     if (!branch) {
-      script.container("clients") {
+      script.container(containerName) {
         try {
           echo("output of git --version: " + script.sh(script: "git --version", returnStdout: true));
           echo("pwd: " + script.sh(script: "pwd", returnStdout: true));
