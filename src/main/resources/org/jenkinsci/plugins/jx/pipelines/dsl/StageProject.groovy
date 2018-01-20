@@ -119,7 +119,7 @@ class StageProject {
       //step([$class: 'ArtifactArchiver', artifacts: '**/target/*.jar', fingerprint: true])
 
     } catch (err) {
-      flow.sendChat room: 'release', message: "Release failed when building and deploying to Nexus ${err}"
+      flow.sendChat "Release failed when building and deploying to Nexus ${err}"
       script.getProperty("currentBuild").result = Result.FAILURE
       script.error "ERROR Release failed when building and deploying to Nexus ${err}"
     }

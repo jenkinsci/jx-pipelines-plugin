@@ -34,7 +34,7 @@ class WaitUntilArtifactSyncedWithCentral {
           }
         }
 
-        flow.sendChat "${config.artifactId} ${config.version} released and available in maven central"
+        flow.sendChat "${config.groupId}/${config.artifactId}/${config.version} released and available in maven central"
       } else {
         echo "required properties missing groupId: ${groupId}, artifactId: ${artifactId}, version: ${version}"
       }
