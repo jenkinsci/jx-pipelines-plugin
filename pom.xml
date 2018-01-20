@@ -82,6 +82,8 @@
     <sshKeyName></sshKeyName>
     <gpgDir></gpgDir>
 
+    <disable-k8s-tests></disable-k8s-tests>
+
 
     <!--
         <jenkins.version>2.60.1</jenkins.version>
@@ -466,6 +468,8 @@
 
             <testGitUrl>${testGitUrl}</testGitUrl>
             <testGitBranch>${testGitBranch}</testGitBranch>
+
+            <disable-k8s-tests>${disable-k8s-tests}</disable-k8s-tests>
           </systemPropertyVariables>
         </configuration>
       </plugin>
@@ -506,6 +510,8 @@
 
             <testGitUrl>${testGitUrl}</testGitUrl>
             <testGitBranch>${testGitBranch}</testGitBranch>
+
+            <disable-k8s-tests>${disable-k8s-tests}</disable-k8s-tests>
           </systemProperties>
         </configuration>
       </plugin>
@@ -592,7 +598,19 @@
     </profile>
 
     <profile>
+      <id>openshift</id>
+
+      <properties>
+        <disable-k8s-tests>true</disable-k8s-tests>
+      </properties>
+    </profile>
+
+    <profile>
       <id>release</id>
+
+      <properties>
+        <disable-k8s-tests>true</disable-k8s-tests>
+      </properties>
 
       <build>
         <plugins>

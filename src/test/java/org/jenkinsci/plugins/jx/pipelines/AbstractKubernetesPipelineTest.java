@@ -69,6 +69,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.jenkinsci.plugins.jx.pipelines.KubernetesTestUtil.TESTING_NAMESPACE;
 import static org.jenkinsci.plugins.jx.pipelines.KubernetesTestUtil.assumeKubernetes;
 import static org.jenkinsci.plugins.jx.pipelines.KubernetesTestUtil.setupCloud;
+import static org.junit.Assume.assumeFalse;
 
 public class AbstractKubernetesPipelineTest {
     public static final String JENKINS_MVN_LOCAL_REPO = "jenkins-mvn-local-repo";
@@ -82,6 +83,8 @@ public class AbstractKubernetesPipelineTest {
     public static final String NEXUS_STORAGE = "nexus-storage";
     public static final String NEXUS = "nexus";
 
+    public static final String DISABLE_KUBE_TESTS = "disable-k8s-tests";
+
     @ClassRule
     public static BuildWatcher buildWatcher = new BuildWatcher();
     @Rule
@@ -93,6 +96,8 @@ public class AbstractKubernetesPipelineTest {
 
     @BeforeClass
     public static void isKubernetesConfigured() throws Exception {
+        String flag = System.getProperty(DISABLE_KUBE_TESTS, "");
+        assumeFalse("Assume system property " + DISABLE_KUBE_TESTS + " is not true", "true".equals(flag));
         assumeKubernetes();
 
         printSystemProperties("hudson.slaves.NodeProvisioner.initialDelay", "hudson.slaves.NodeProvisioner.MARGIN", "hudson.slaves.NodeProvisioner.MARGIN0");
