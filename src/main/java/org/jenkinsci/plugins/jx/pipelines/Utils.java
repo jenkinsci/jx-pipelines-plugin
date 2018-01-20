@@ -43,7 +43,7 @@ import org.csanchez.jenkins.plugins.kubernetes.PodAnnotation;
 */
 
 public class Utils extends CommandSupport {
-    public static final String CLIENTS = "clients";
+    public static final String CLIENTS = "maven";
     private static final long serialVersionUID = 1L;
     private String branch;
 

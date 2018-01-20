@@ -63,7 +63,7 @@ public class MavenFlowArguments extends JXPipelinesArguments<MavenFlowArguments>
     @Argument
     private String containerName = "maven";
     @Argument
-    private String clientsContainerName = "clients";
+    private String clientsContainerName = "maven";
     @Argument
     private boolean useStaging;
     @Argument

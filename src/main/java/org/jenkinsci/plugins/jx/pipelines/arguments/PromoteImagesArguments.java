@@ -41,7 +41,7 @@ public class PromoteImagesArguments extends JXPipelinesArguments<PromoteImagesAr
     @Argument
     private List<String> images = new ArrayList<>();
     @Argument
-    private String containerName = "clients";
+    private String containerName = "maven";
 
     private StepExtension stepExtension;
 

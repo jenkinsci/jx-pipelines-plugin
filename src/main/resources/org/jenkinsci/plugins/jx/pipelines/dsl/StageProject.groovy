@@ -51,11 +51,13 @@ class StageProject {
     def releaseVersion = flow.getProjectVersion()
 
     script.container(clientsContainerName) {
+/*
       if (script.fileExists("root/.ssh-git")) {
         script.sh 'chmod 600 /root/.ssh-git/ssh-key'
         script.sh 'chmod 600 /root/.ssh-git/ssh-key.pub'
         script.sh 'chmod 700 /root/.ssh-git'
       }
+*/
 
       if (script.fileExists("/home/jenkins/.gnupg")) {
         script.sh 'chmod 700 /home/jenkins/.gnupg'
@@ -135,12 +137,14 @@ class StageProject {
 
   def setupStageWorkspace(CommonFunctions flow, boolean useMavenForNextVersion, String mvnExtraArgs, String containerName, String clientsContainerName, boolean gitPush) {
     script.container(clientsContainerName) {
-      script.sh "git config user.email fabric8-admin@googlegroups.com"
-      script.sh "git config user.name fabric8-release"
+      script.sh "git config user.email jenkins-x-admin@googlegroups.com>"
+      script.sh "git config user.name jenkins-x-bot"
 
+/*
       script.sh 'chmod 600 /root/.ssh-git/ssh-key'
       script.sh 'chmod 600 /root/.ssh-git/ssh-key.pub'
       script.sh 'chmod 700 /root/.ssh-git'
+*/
 
       if (script.fileExists("/home/jenkins/.gnupg/pubring.gpg")) {
         script.sh 'chmod 600 /home/jenkins/.gnupg/pubring.gpg'
@@ -148,6 +152,7 @@ class StageProject {
         script.sh 'chmod 600 /home/jenkins/.gnupg/trustdb.gpg'
         script.sh 'chmod 700 /home/jenkins/.gnupg'
       }
+      script.sh 'cp /root/netrc/.netrc ~/.netrc'
 
       script.sh "git tag -d \$(git tag)"
       if (gitPush) {
@@ -186,7 +191,7 @@ class StageProject {
 
   String newVersionUsingSemVer(CommonFunctions flow, String clientsContainerName) {
     script.container(clientsContainerName) {
-      return shOutput("semver-release-version --folder " + script.pwd()).trim();
+      return shOutput("jx-release-version --folder " + script.pwd()).trim();
     }
   }
 
