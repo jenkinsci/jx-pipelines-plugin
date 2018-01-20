@@ -11,8 +11,7 @@ pipeline {
           useSonatype true
           pauseOnFailure true
           stageServerId "maven.jenkins-ci.org"
-          stageRepositoryUrl "https://repo.jenkins-ci.org/snapshots/"
-
+          stageRepositoryUrl "https://repo.jenkins-ci.org/releases/"
           promoteArtifacts {
             pre {
               echo "====> hook invoked before promote artifacts!"
