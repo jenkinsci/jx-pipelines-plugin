@@ -137,7 +137,7 @@ class StageProject {
 
   def setupStageWorkspace(CommonFunctions flow, boolean useMavenForNextVersion, String mvnExtraArgs, String containerName, String clientsContainerName, boolean gitPush) {
     script.container(clientsContainerName) {
-      script.sh "git config user.email jenkins-x-admin@googlegroups.com>"
+      script.sh "git config user.email jenkins-x-admin@googlegroups.com"
       script.sh "git config user.name jenkins-x-bot"
 
 /*
