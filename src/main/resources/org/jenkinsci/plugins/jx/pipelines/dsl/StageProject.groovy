@@ -139,6 +139,8 @@ class StageProject {
     script.container(clientsContainerName) {
       script.sh "git config user.email jenkins-x-admin@googlegroups.com"
       script.sh "git config user.name jenkins-x-bot"
+      // TODO disable if no .gitcredentials
+      script.sh "git config credential.https://github.com.username jenkins-x-bot"
 
 /*
       script.sh 'chmod 600 /root/.ssh-git/ssh-key'
