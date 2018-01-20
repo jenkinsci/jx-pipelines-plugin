@@ -9,6 +9,7 @@ pipeline {
           cdOrganisation "jx-pipelines-plugin"
           useStaging true
           useSonatype true
+          pauseOnFailure true
 
           promoteArtifacts {
             pre {
