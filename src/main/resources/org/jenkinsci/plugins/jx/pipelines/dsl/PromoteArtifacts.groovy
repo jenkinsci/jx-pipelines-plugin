@@ -22,9 +22,11 @@ class PromoteArtifacts {
     return flow.doStepExecution(config.stepExtension) {
       if (repoIds && repoIds.size() > 0) {
         script.container(name: containerName) {
+/*
           script.sh 'chmod 600 /root/.ssh-git/ssh-key'
           script.sh 'chmod 600 /root/.ssh-git/ssh-key.pub'
           script.sh 'chmod 700 /root/.ssh-git'
+*/
 
           echo "About to release ${name} repo ids ${repoIds}"
           for (int j = 0; j < repoIds.size(); j++) {

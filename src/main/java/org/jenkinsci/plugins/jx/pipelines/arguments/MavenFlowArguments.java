@@ -29,7 +29,6 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
 import javax.validation.constraints.NotEmpty;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +63,7 @@ public class MavenFlowArguments extends JXPipelinesArguments<MavenFlowArguments>
     @Argument
     private String containerName = "maven";
     @Argument
-    private String clientsContainerName = "clients";
+    private String clientsContainerName = "maven";
     @Argument
     private boolean useStaging;
     @Argument

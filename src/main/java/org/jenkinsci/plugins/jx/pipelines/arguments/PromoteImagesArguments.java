@@ -24,7 +24,6 @@ import org.jenkinsci.plugins.jx.pipelines.StepExtension;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,7 +41,7 @@ public class PromoteImagesArguments extends JXPipelinesArguments<PromoteImagesAr
     @Argument
     private List<String> images = new ArrayList<>();
     @Argument
-    private String containerName = "clients";
+    private String containerName = "maven";
 
     private StepExtension stepExtension;
 

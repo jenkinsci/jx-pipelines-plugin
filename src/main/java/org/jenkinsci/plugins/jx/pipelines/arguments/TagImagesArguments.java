@@ -24,7 +24,6 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
 import javax.validation.constraints.NotEmpty;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +38,7 @@ public class TagImagesArguments extends JXPipelinesArguments<TagImagesArguments>
     @Argument
     private List<String> images = new ArrayList<>();
     @Argument
-    private String containerName = "clients";
+    private String containerName = "maven";
 
     private StepExtension stepExtension;
 

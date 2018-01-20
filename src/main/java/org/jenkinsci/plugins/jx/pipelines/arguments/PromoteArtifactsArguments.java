@@ -23,7 +23,6 @@ import org.jenkinsci.plugins.jx.pipelines.StepExtension;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
