@@ -98,6 +98,8 @@ class CommonFunctions {
   def setupWorkspaceForRelease(String project, Boolean useGitTagForNextVersion, String mvnExtraArgs = "", String currentVersion = "", String containerName = "maven") {
     script.sh "git config user.email jenkins-x-admin@googlegroups.com"
     script.sh "git config user.name jenkins-x-bot"
+    // TODO disable if no .gitcredentials
+    script.sh "git config credential.https://github.com.username jenkins-x-bot"
 
 /*
     if (script.fileExists("root/.ssh-git")) {
