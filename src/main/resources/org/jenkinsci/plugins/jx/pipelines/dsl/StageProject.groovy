@@ -141,6 +141,10 @@ class StageProject {
       script.sh "git config user.name jenkins-x-bot"
       // TODO disable if no .gitcredentials
       script.sh "git config credential.https://github.com.username jenkins-x-bot"
+      script.sh "git config credential.helper store"
+      script.sh 'cp /root/gitcreds/gitcredentials ~/.git-credentials'
+      script.sh 'chmod 600  ~/.git-credentials'
+
 
 /*
       script.sh 'chmod 600 /root/.ssh-git/ssh-key'
