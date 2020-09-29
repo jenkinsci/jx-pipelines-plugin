@@ -1,6 +1,6 @@
 package org.jenkinsci.plugins.jx.pipelines.dsl
 
-import io.fabric8.utils.Strings
+import hudson.Util
 import org.apache.maven.model.Model
 import org.jenkinsci.plugins.jx.pipelines.arguments.PromoteArtifactsArguments
 import org.jenkinsci.plugins.jx.pipelines.arguments.PromoteImagesArguments
@@ -66,16 +66,16 @@ class ReleaseProject {
    */
   def defaultWaitInfoFromPom(WaitUntilArtifactSyncedArguments arguments, Model mavenProject) {
     if (mavenProject != null) {
-      if (Strings.isNullOrBlank(arguments.groupId)) {
+      if (Util.fixEmptyAndTrim(arguments.groupId) == null) {
         arguments.groupId = mavenProject.groupId
       }
-      if (Strings.isNullOrBlank(arguments.artifactId)) {
+      if (Util.fixEmptyAndTrim(arguments.artifactId) == null) {
         arguments.artifactId = mavenProject.artifactId
       }
-      if (Strings.isNullOrBlank(arguments.extension)) {
+      if (Util.fixEmptyAndTrim(arguments.extension) == null) {
         arguments.extension = "pom";
       }
-      if (Strings.isNullOrBlank(arguments.repositoryUrl)) {
+      if (Util.fixEmptyAndTrim(arguments.repositoryUrl) == null) {
         arguments.repositoryUrl = ServiceConstants.MAVEN_CENTRAL
       }
     }

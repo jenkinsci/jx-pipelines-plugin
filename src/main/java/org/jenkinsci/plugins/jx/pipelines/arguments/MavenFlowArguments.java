@@ -20,7 +20,6 @@ import hudson.Extension;
 import io.fabric8.utils.Strings;
 import io.jenkins.functions.Argument;
 import org.jenkinsci.Symbol;
-import org.jenkinsci.plugins.jx.pipelines.StepExtension;
 import org.jenkinsci.plugins.jx.pipelines.helpers.ConfigHelper;
 import org.jenkinsci.plugins.jx.pipelines.helpers.GitRepositoryInfo;
 import org.jenkinsci.plugins.jx.pipelines.model.ServiceConstants;
@@ -97,11 +96,11 @@ public class MavenFlowArguments extends JXPipelinesArguments<MavenFlowArguments>
     @Argument
     private List<String> mavenProfiles = new ArrayList<>();
 
-    private StepExtension promoteArtifactsExtension = new StepExtension();
-    private StepExtension promoteImagesExtension = new StepExtension();
-    private StepExtension tagImagesExtension = new StepExtension();
-    private StepExtension waitUntilPullRequestMergedExtension = new StepExtension();
-    private StepExtension waitUntilArtifactSyncedExtension = new StepExtension();
+    private PromoteArtifactsArguments promoteArtifacts = new PromoteArtifactsArguments();
+    private PromoteImagesArguments promoteImages = new PromoteImagesArguments();
+    private TagImagesArguments tagImages = new TagImagesArguments();
+    private WaitUntilPullRequestMergedArguments waitUntilPullRequestMerged = new WaitUntilPullRequestMergedArguments();
+    private WaitUntilArtifactSyncedArguments waitUntilArtifactSynced = new WaitUntilArtifactSyncedArguments();
 
     @Override
     public String toString() {
@@ -110,7 +109,7 @@ public class MavenFlowArguments extends JXPipelinesArguments<MavenFlowArguments>
                 ", cdBranches=" + cdBranches +
                 ", pauseOnFailure=" + pauseOnFailure +
                 ", pauseOnSuccess=" + pauseOnSuccess +
-                ", promoteArtifactsExtension=" + promoteArtifactsExtension +
+                ", promoteArtifacts=" + promoteArtifacts +
                 '}';
     }
 
@@ -187,11 +186,11 @@ public class MavenFlowArguments extends JXPipelinesArguments<MavenFlowArguments>
         answer.setRepositoryToWaitFor(getRepositoryToWaitFor());
         answer.setUpdateNextDevelopmentVersion(isUpdateNextDevelopmentVersion());
 
-        answer.setPromoteArtifactsExtension(getPromoteArtifactsExtension());
-        answer.setPromoteImagesExtension(getPromoteImagesExtension());
-        answer.setTagImagesExtension(getTagImagesExtension());
-        answer.setWaitUntilArtifactSyncedExtension(getWaitUntilArtifactSyncedExtension());
-        answer.setWaitUntilPullRequestMergedExtension(getWaitUntilPullRequestMergedExtension());
+        answer.setPromoteArtifacts(getPromoteArtifacts());
+        answer.setPromoteImages(getPromoteImages());
+        answer.setTagImages(getTagImages());
+        answer.setWaitUntilArtifactSynced(getWaitUntilArtifactSynced());
+        answer.setWaitUntilPullRequestMerged(getWaitUntilPullRequestMerged());
         return answer;
     }
 
@@ -420,49 +419,49 @@ public class MavenFlowArguments extends JXPipelinesArguments<MavenFlowArguments>
         this.mavenProfiles = mavenProfiles;
     }
 
-    public StepExtension getPromoteArtifactsExtension() {
-        return promoteArtifactsExtension;
+    public PromoteArtifactsArguments getPromoteArtifacts() {
+        return promoteArtifacts;
     }
 
     @DataBoundSetter
-    public void setPromoteArtifactsExtension(StepExtension promoteArtifactsExtension) {
-        this.promoteArtifactsExtension = promoteArtifactsExtension;
+    public void setPromoteArtifacts(PromoteArtifactsArguments promoteArtifacts) {
+        this.promoteArtifacts = promoteArtifacts;
     }
 
-    public StepExtension getPromoteImagesExtension() {
-        return promoteImagesExtension;
-    }
-
-    @DataBoundSetter
-    public void setPromoteImagesExtension(StepExtension promoteImagesExtension) {
-        this.promoteImagesExtension = promoteImagesExtension;
-    }
-
-    public StepExtension getTagImagesExtension() {
-        return tagImagesExtension;
+    public PromoteImagesArguments getPromoteImages() {
+        return promoteImages;
     }
 
     @DataBoundSetter
-    public void setTagImagesExtension(StepExtension tagImagesExtension) {
-        this.tagImagesExtension = tagImagesExtension;
+    public void setPromoteImages(PromoteImagesArguments promoteImagesExtension) {
+        this.promoteImages = promoteImagesExtension;
     }
 
-    public StepExtension getWaitUntilPullRequestMergedExtension() {
-        return waitUntilPullRequestMergedExtension;
-    }
-
-    @DataBoundSetter
-    public void setWaitUntilPullRequestMergedExtension(StepExtension waitUntilPullRequestMergedExtension) {
-        this.waitUntilPullRequestMergedExtension = waitUntilPullRequestMergedExtension;
-    }
-
-    public StepExtension getWaitUntilArtifactSyncedExtension() {
-        return waitUntilArtifactSyncedExtension;
+    public TagImagesArguments getTagImages() {
+        return tagImages;
     }
 
     @DataBoundSetter
-    public void setWaitUntilArtifactSyncedExtension(StepExtension waitUntilArtifactSyncedExtension) {
-        this.waitUntilArtifactSyncedExtension = waitUntilArtifactSyncedExtension;
+    public void setTagImages(TagImagesArguments tagImagesExtension) {
+        this.tagImages = tagImagesExtension;
+    }
+
+    public WaitUntilPullRequestMergedArguments getWaitUntilPullRequestMerged() {
+        return waitUntilPullRequestMerged;
+    }
+
+    @DataBoundSetter
+    public void setWaitUntilPullRequestMerged(WaitUntilPullRequestMergedArguments waitUntilPullRequestMergedExtension) {
+        this.waitUntilPullRequestMerged = waitUntilPullRequestMergedExtension;
+    }
+
+    public WaitUntilArtifactSyncedArguments getWaitUntilArtifactSynced() {
+        return waitUntilArtifactSynced;
+    }
+
+    @DataBoundSetter
+    public void setWaitUntilArtifactSynced(WaitUntilArtifactSyncedArguments waitUntilArtifactSyncedExtension) {
+        this.waitUntilArtifactSynced = waitUntilArtifactSyncedExtension;
     }
 
     @Extension @Symbol("mavenFlow")

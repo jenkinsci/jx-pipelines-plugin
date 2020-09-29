@@ -19,7 +19,6 @@ package org.jenkinsci.plugins.jx.pipelines.arguments;
 import hudson.Extension;
 import io.jenkins.functions.Argument;
 import org.jenkinsci.Symbol;
-import org.jenkinsci.plugins.jx.pipelines.StepExtension;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
@@ -28,7 +27,7 @@ import javax.validation.constraints.Positive;
 
 /**
  */
-public class WaitUntilPullRequestMergedArguments extends JXPipelinesArguments<WaitUntilPullRequestMergedArguments> {
+public class WaitUntilPullRequestMergedArguments extends StepContainer<WaitUntilPullRequestMergedArguments> {
     private static final long serialVersionUID = 1L;
 
     @Argument
@@ -38,16 +37,14 @@ public class WaitUntilPullRequestMergedArguments extends JXPipelinesArguments<Wa
     @NotEmpty
     private String project = "";
 
-    private StepExtension stepExtension;
-
     @DataBoundConstructor
     public WaitUntilPullRequestMergedArguments() {
     }
 
-    public WaitUntilPullRequestMergedArguments(int id, String project, StepExtension stepExtension) {
+    public WaitUntilPullRequestMergedArguments(int id, String project, WaitUntilPullRequestMergedArguments original) {
         this.id = id;
         this.project = project;
-        this.stepExtension = stepExtension;
+        copyFrom(original);
     }
 
     @Override
@@ -55,6 +52,7 @@ public class WaitUntilPullRequestMergedArguments extends JXPipelinesArguments<Wa
         return "Arguments{" +
                 "id=" + id +
                 ", project='" + project + '\'' +
+                ", " + super.toString() +
                 '}';
     }
 
@@ -74,15 +72,6 @@ public class WaitUntilPullRequestMergedArguments extends JXPipelinesArguments<Wa
     @DataBoundSetter
     public void setProject(String project) {
         this.project = project;
-    }
-
-    public StepExtension getStepExtension() {
-        return stepExtension;
-    }
-
-    @DataBoundSetter
-    public void setStepExtension(StepExtension stepExtension) {
-        this.stepExtension = stepExtension;
     }
 
     @Extension @Symbol("waitUntilPullRequestMerged")

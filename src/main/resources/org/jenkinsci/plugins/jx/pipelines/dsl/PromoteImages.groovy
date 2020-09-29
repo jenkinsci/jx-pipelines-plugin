@@ -26,7 +26,7 @@ class PromoteImages {
     def tag = config.tag
     def toRegistry = config.toRegistry
 
-    return flow.doStepExecution(config.stepExtension) {
+    return flow.doStepExecution(config) {
       if (tag && toRegistry) {
         script.container(config.containerName) {
           for (int i = 0; i < images.size(); i++) {

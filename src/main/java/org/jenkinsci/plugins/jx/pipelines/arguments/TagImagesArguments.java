@@ -19,7 +19,6 @@ package org.jenkinsci.plugins.jx.pipelines.arguments;
 import hudson.Extension;
 import io.jenkins.functions.Argument;
 import org.jenkinsci.Symbol;
-import org.jenkinsci.plugins.jx.pipelines.StepExtension;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
@@ -29,7 +28,7 @@ import java.util.List;
 
 /**
  */
-public class TagImagesArguments extends JXPipelinesArguments<TagImagesArguments> {
+public class TagImagesArguments extends StepContainer<TagImagesArguments> {
     private static final long serialVersionUID = 1L;
 
     @Argument
@@ -40,16 +39,14 @@ public class TagImagesArguments extends JXPipelinesArguments<TagImagesArguments>
     @Argument
     private String containerName = "maven";
 
-    private StepExtension stepExtension;
-
     @DataBoundConstructor
     public TagImagesArguments() {
     }
 
-    public TagImagesArguments(String tag, List<String> images, StepExtension stepExtension) {
+    public TagImagesArguments(String tag, List<String> images, TagImagesArguments original) {
         this.tag = tag;
         this.images = images;
-        this.stepExtension = stepExtension;
+        copyFrom(original);
     }
 
     public List<String> getImages() {
@@ -77,15 +74,6 @@ public class TagImagesArguments extends JXPipelinesArguments<TagImagesArguments>
     @DataBoundSetter
     public void setContainerName(String containerName) {
         this.containerName = containerName;
-    }
-
-    public StepExtension getStepExtension() {
-        return stepExtension;
-    }
-
-    @DataBoundSetter
-    public void setStepExtension(StepExtension stepExtension) {
-        this.stepExtension = stepExtension;
     }
 
     @Extension @Symbol("tagImages")

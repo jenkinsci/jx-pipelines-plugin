@@ -14,13 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jenkinsci.plugins.jx.pipelines;
+package org.jenkinsci.plugins.jx.pipelines.arguments;
 
-import org.jenkinsci.plugins.jx.pipelines.helpers.StringHelpers;
+import groovy.lang.Closure;
 import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.Whitelisted;
+import org.kohsuke.stapler.DataBoundSetter;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.jenkinsci.plugins.jx.pipelines.helpers.StringHelpers.addToStringProperty;
@@ -29,40 +31,42 @@ import static org.jenkinsci.plugins.jx.pipelines.helpers.StringHelpers.addToStri
  * Represents an extension point in a psuedo step so that you can override a step completely, disable it
  * or add pre/post blocks
  */
-public class StepExtension implements Serializable {
+public abstract class StepContainer<T extends StepContainer<T>> extends JXPipelinesArguments<T> implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private Object stepsBlock;
-    private Object preBlock;
-    private Object postBlock;
+    public static final List<String> closureNames = Arrays.asList("post", "pre", "steps");
+
+    private Closure steps;
+    private Closure pre;
+    private Closure post;
     private Boolean disabled;
 
     @Override
     public String toString() {
         List<String> list = new ArrayList<>();
-        addToStringProperty(list, "stepsBlock", stepsBlock);
-        addToStringProperty(list, "preBlock", preBlock);
-        addToStringProperty(list, "postBlock", postBlock);
+        addToStringProperty(list, "steps", steps);
+        addToStringProperty(list, "pre", pre);
+        addToStringProperty(list, "post", post);
         addToStringProperty(list, "disabled", disabled);
-        return "StepExtension{" + String.join(", ", list) + "}";
+        return String.join(", ", list);
     }
 
     @Whitelisted
-    public StepExtension steps(Object stepsBlock) {
-        System.out.println("Setting stepsBlock " + stepsBlock + " on StepExtension");
-        this.stepsBlock = stepsBlock;
+    public StepContainer steps(Closure steps) {
+        System.out.println("Setting stepsBlock " + steps + " on StepExtension");
+        this.steps = steps;
         return this;
     }
 
     @Whitelisted
-    public StepExtension pre(Object preBlock) {
-        this.preBlock = preBlock;
+    public StepContainer pre(Closure pre) {
+        this.pre = pre;
         return this;
     }
 
     @Whitelisted
-    public StepExtension post(Object postBlock) {
-        this.postBlock = postBlock;
+    public StepContainer post(Closure post) {
+        this.post = post;
         return this;
     }
 
@@ -70,35 +74,46 @@ public class StepExtension implements Serializable {
         return disabled != null && disabled.booleanValue();
     }
 
-    public Object getStepsBlock() {
-        return stepsBlock;
+    public Closure getSteps() {
+        return steps;
     }
 
-    public void setStepsBlock(Object stepsBlock) {
-        this.stepsBlock = stepsBlock;
+    @DataBoundSetter
+    public void setSteps(Closure steps) {
+        this.steps = steps;
     }
 
-    public Object getPreBlock() {
-        return preBlock;
+    public Closure getPre() {
+        return pre;
     }
 
-    public void setPreBlock(Object preBlock) {
-        this.preBlock = preBlock;
+    @DataBoundSetter
+    public void setPre(Closure pre) {
+        this.pre = pre;
     }
 
-    public Object getPostBlock() {
-        return postBlock;
+    public Closure getPost() {
+        return post;
     }
 
-    public void setPostBlock(Object postBlock) {
-        this.postBlock = postBlock;
+    @DataBoundSetter
+    public void setPost(Closure post) {
+        this.post = post;
     }
 
     public Boolean getDisabled() {
         return disabled;
     }
 
+    @DataBoundSetter
     public void setDisabled(Boolean disabled) {
         this.disabled = disabled;
+    }
+
+    public void copyFrom(StepContainer s) {
+        this.disabled = s.getDisabled();
+        this.post = s.getPost();
+        this.pre = s.getPre();
+        this.steps = s.getSteps();
     }
 }

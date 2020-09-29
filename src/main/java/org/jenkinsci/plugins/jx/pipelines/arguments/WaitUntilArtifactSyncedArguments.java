@@ -19,7 +19,6 @@ package org.jenkinsci.plugins.jx.pipelines.arguments;
 import hudson.Extension;
 import io.jenkins.functions.Argument;
 import org.jenkinsci.Symbol;
-import org.jenkinsci.plugins.jx.pipelines.StepExtension;
 import org.jenkinsci.plugins.jx.pipelines.model.ServiceConstants;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
@@ -28,7 +27,7 @@ import javax.validation.constraints.NotEmpty;
 
 /**
  */
-public class WaitUntilArtifactSyncedArguments extends JXPipelinesArguments<WaitUntilArtifactSyncedArguments> {
+public class WaitUntilArtifactSyncedArguments extends StepContainer<WaitUntilArtifactSyncedArguments> {
     private static final long serialVersionUID = 1L;
 
     @Argument
@@ -45,17 +44,15 @@ public class WaitUntilArtifactSyncedArguments extends JXPipelinesArguments<WaitU
     @Argument
     private String extension = "jar";
 
-    private StepExtension stepExtension;
-
     @DataBoundConstructor
     public WaitUntilArtifactSyncedArguments() {
     }
 
-    public WaitUntilArtifactSyncedArguments(String groupId, String artifactId, String version, StepExtension stepExtension) {
+    public WaitUntilArtifactSyncedArguments(String groupId, String artifactId, String version, WaitUntilArtifactSyncedArguments original) {
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
-        this.stepExtension = stepExtension;
+        copyFrom(original);
     }
 
     @Override
@@ -66,6 +63,7 @@ public class WaitUntilArtifactSyncedArguments extends JXPipelinesArguments<WaitU
                 ", artifactId='" + artifactId + '\'' +
                 ", version='" + version + '\'' +
                 ", ext='" + extension + '\'' +
+                ", " + super.toString() +
                 '}';
     }
 
@@ -121,15 +119,6 @@ public class WaitUntilArtifactSyncedArguments extends JXPipelinesArguments<WaitU
     @DataBoundSetter
     public void setExtension(String extension) {
         this.extension = extension;
-    }
-
-    public StepExtension getStepExtension() {
-        return stepExtension;
-    }
-
-    @DataBoundSetter
-    public void setStepExtension(StepExtension stepExtension) {
-        this.stepExtension = stepExtension;
     }
 
     @Extension @Symbol("waitUntilArtifactSynced")

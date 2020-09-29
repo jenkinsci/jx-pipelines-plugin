@@ -17,7 +17,7 @@ class TagImages {
     def registryPrefix = flow.dockerRegistryPrefix()
     def flow = new CommonFunctions(script)
 
-    return flow.doStepExecution(config.stepExtension) {
+    return flow.doStepExecution(config) {
       if (tag && images && images.size() > 0) {
         //stage "tag images"
         script.container(config.containerName) {
