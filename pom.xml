@@ -211,7 +211,7 @@
       <!--
             <version>2.4.2</version>
       -->
-      <version>3.6.4</version>
+      <version>4.11.5</version>
     </dependency>
 
     <!-- fix enforcer errors -->
